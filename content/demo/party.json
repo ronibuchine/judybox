@@ -1,0 +1,131 @@
+{
+  "id": "demo",
+  "name": "Demo Party",
+  "specialPlayer": {
+    "name": "Star"
+  },
+  "games": [
+    {
+      "id": "demo-quiz",
+      "type": "multiple-choice",
+      "name": "Demo Game",
+      "scoring": {
+        "correctAnswer": 100,
+        "manualStep": 50
+      },
+      "rounds": [
+        {
+          "prompt": "What is 2 + 2?",
+          "options": ["3", "4", "5", "22"],
+          "correctOptionIndex": 1
+        },
+        {
+          "prompt": "Which of these is a colour?",
+          "options": ["Tuesday", "Loud", "Green", "Seven"],
+          "correctOptionIndex": 2
+        },
+        {
+          "prompt": "Best snack at a party?",
+          "options": ["Crisps", "Olives", "Cake", "Celery"],
+          "correctOptionIndex": null
+        }
+      ]
+    },
+    {
+      "id": "would-star-approve",
+      "type": "would-approve",
+      "name": "Would Star Approve?",
+      "scoring": {
+        "predictSpecial": 100,
+        "manualStep": 50
+      },
+      "rounds": [
+        {
+          "prompt": "Would Star approve of this room?",
+          "image": "placeholder/room-01.svg",
+          "options": ["LOVE", "MAYBE", "NO", "THIS OFFENDS ME"],
+          "judyAnswer": 1,
+          "judyComment": "Beige is a decision, and I respect it less for that."
+        },
+        {
+          "prompt": "Would Star approve of this room?",
+          "image": "placeholder/room-02.svg",
+          "options": ["LOVE", "MAYBE", "NO", "THIS OFFENDS ME"],
+          "judyAnswer": 3,
+          "judyComment": "Why would anyone put that there?"
+        },
+        {
+          "prompt": "Would Star approve of this room?",
+          "image": "placeholder/room-03.svg",
+          "options": ["LOVE", "MAYBE", "NO", "THIS OFFENDS ME"],
+          "judyAnswer": 0,
+          "judyComment": "Finally, someone with commitment."
+        }
+      ]
+    },
+    {
+      "id": "what-would-star-do",
+      "type": "what-would-judy-do",
+      "name": "What Would Star Do?",
+      "scoring": {
+        "predictSpecial": 100,
+        "manualStep": 50
+      },
+      "rounds": [
+        {
+          "prompt": "Star has three free hours in Paris. What does she do?",
+          "options": [
+            "Go shopping",
+            "Find a museum",
+            "Find an absurdly good restaurant",
+            "Walk around with no plan"
+          ]
+        },
+        {
+          "prompt": "Star is handed the aux cable. What happens?",
+          "options": ["One song, then regret", "Takes over the night", "Refuses immediately"]
+        }
+      ]
+    },
+    {
+      "id": "star-rotten-tomatoes",
+      "type": "rotten-tomatoes",
+      "name": "Star's Rotten Tomatoes",
+      "scoring": {
+        "exact": 500,
+        "within5": 400,
+        "within10": 300,
+        "within20": 150,
+        "otherwise": 0,
+        "manualStep": 50
+      },
+      "rounds": [
+        {
+          "prompt": "How would Star rate this room?",
+          "image": "placeholder/room-01.svg"
+        },
+        {
+          "prompt": "How would Star rate this room?",
+          "image": "placeholder/room-02.svg",
+          "meta": "Someone lives here on purpose"
+        }
+      ]
+    },
+    {
+      "id": "caption-star",
+      "type": "caption-this",
+      "name": "Caption This",
+      "scoring": { "specialPick": 100 },
+      "rounds": [
+        { "prompt": "Star, discovering the aux cable is missing.", "image": "placeholder/room-01.svg" }
+      ]
+    },
+    {
+      "id": "draw-star",
+      "type": "draw-this",
+      "name": "Draw This",
+      "scoring": { "specialPick": 100 },
+      "rounds": [{ "prompt": "Draw Star's ideal Tuesday." }]
+    }
+  ]
+}

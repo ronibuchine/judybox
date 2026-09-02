@@ -1,0 +1,162 @@
+{
+  "id": "judy-30",
+  "name": "Judy's 30th",
+  "specialPlayer": {
+    "name": "Judy"
+  },
+  "games": [
+    {
+      "id": "warm-up",
+      "type": "multiple-choice",
+      "name": "Warm-Up Trivia",
+      "scoring": {
+        "correctAnswer": 100,
+        "manualStep": 100
+      },
+      "rounds": [
+        {
+          "prompt": "What is 2 + 2?",
+          "options": ["3", "4", "5", "22"],
+          "correctOptionIndex": 1
+        },
+        {
+          "prompt": "How many candles on a 30th birthday cake?",
+          "options": ["13", "29", "30", "As few as possible"],
+          "correctOptionIndex": 2
+        }
+      ]
+    },
+    {
+      "id": "would-judy-approve",
+      "type": "would-approve",
+      "name": "Would Judy Approve?",
+      "scoring": {
+        "predictSpecial": 100,
+        "manualStep": 100
+      },
+      "rounds": [
+        {
+          "prompt": "Would Judy approve of this room?",
+          "image": "placeholder/room-01.svg",
+          "options": ["LOVE", "MAYBE", "NO", "THIS OFFENDS ME"],
+          "judyAnswer": 1,
+          "judyComment": "It is fine. That is the whole problem, it is just fine."
+        },
+        {
+          "prompt": "Would Judy approve of this room?",
+          "image": "placeholder/room-02.svg",
+          "options": ["LOVE", "MAYBE", "NO", "THIS OFFENDS ME"],
+          "judyAnswer": 3,
+          "judyComment": "Why would anyone put that there?"
+        },
+        {
+          "prompt": "Would Judy approve of this room?",
+          "image": "placeholder/room-03.svg",
+          "options": ["LOVE", "MAYBE", "NO", "THIS OFFENDS ME"],
+          "judyAnswer": 0,
+          "judyComment": "Unhinged, and I mean that as a compliment."
+        }
+      ]
+    },
+    {
+      "id": "what-would-judy-do",
+      "type": "what-would-judy-do",
+      "name": "What Would Judy Do?",
+      "scoring": {
+        "predictSpecial": 100,
+        "manualStep": 100
+      },
+      "rounds": [
+        {
+          "prompt": "Judy has three free hours in Paris. What does she do?",
+          "options": [
+            "Go shopping",
+            "Find a museum",
+            "Find an absurdly good restaurant",
+            "Walk around with no plan"
+          ]
+        },
+        {
+          "prompt": "The restaurant brings out the wrong order. What does Judy do?",
+          "options": [
+            "Eat it anyway",
+            "Politely flag it",
+            "Send it back immediately",
+            "Say nothing and remember forever"
+          ]
+        },
+        {
+          "prompt": "It is 11pm and someone suggests one more drink. Judy...",
+          "options": [
+            "Is already in the taxi",
+            "Says yes but means one",
+            "Orders a round for everyone",
+            "Suggests going somewhere better"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "judys-rotten-tomatoes",
+      "type": "rotten-tomatoes",
+      "name": "Judy's Rotten Tomatoes",
+      "scoring": {
+        "exact": 500,
+        "within5": 400,
+        "within10": 300,
+        "within20": 150,
+        "otherwise": 0,
+        "manualStep": 100
+      },
+      "rounds": [
+        {
+          "prompt": "How would Judy rate this room?",
+          "image": "placeholder/room-01.svg"
+        },
+        {
+          "prompt": "How would Judy rate this room?",
+          "image": "placeholder/room-02.svg",
+          "meta": "Listed at a price nobody should pay"
+        },
+        {
+          "prompt": "How would Judy rate this room?",
+          "image": "placeholder/room-03.svg"
+        }
+      ]
+    },
+    {
+      "id": "caption-this",
+      "type": "caption-this",
+      "name": "Caption This",
+      "scoring": {
+        "specialPick": 150
+      },
+      "rounds": [
+        {
+          "prompt": "Judy when she sees a kitchen island that is 15cm too short.",
+          "image": "placeholder/room-01.svg"
+        },
+        {
+          "prompt": "Judy, five minutes into assembling flat-pack furniture.",
+          "image": "placeholder/room-02.svg"
+        }
+      ]
+    },
+    {
+      "id": "draw-this",
+      "type": "draw-this",
+      "name": "Draw This",
+      "scoring": {
+        "specialPick": 150
+      },
+      "rounds": [
+        {
+          "prompt": "Design Judy's dream living room if it were inside Hogwarts."
+        },
+        {
+          "prompt": "Draw Judy's face the moment someone says \"one more drink\"."
+        }
+      ]
+    }
+  ]
+}
