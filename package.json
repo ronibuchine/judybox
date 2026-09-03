@@ -9,7 +9,8 @@
   "workspaces": [
     "shared",
     "server",
-    "client"
+    "client",
+    "simulator"
   ],
   "scripts": {
     "dev": "concurrently -n server,client -c cyan,magenta \"npm:dev:server\" \"npm:dev:client\"",
@@ -18,12 +19,14 @@
     "build": "npm run build --workspace @judybox/client && npm run build --workspace @judybox/server",
     "start": "npm run start --workspace @judybox/server",
     "party": "npm run build && npm run start",
-    "typecheck": "tsc -p shared --noEmit && tsc -p server --noEmit && tsc -p client --noEmit && tsc -p tsconfig.tests.json --noEmit",
+    "simulate": "tsx simulator/src/cli.ts",
+    "typecheck": "tsc -p shared --noEmit && tsc -p server --noEmit && tsc -p client --noEmit && tsc -p simulator --noEmit && tsc -p tsconfig.tests.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.3",
     "vitest": "^3.0.5"
   }

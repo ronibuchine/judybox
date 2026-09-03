@@ -242,6 +242,7 @@ npm run dev        # development: server on :3000, Vite UI on :5173
 npm run party      # party mode: build the UI + server, serve everything on :3000
 npm test           # unit and integration tests
 npm run typecheck  # full type check across all workspaces and tests
+npm run simulate -- --players 20   # 20 fake phones play a full session against a real server
 ./start-party.sh   # party mode, including first-run install
 ```
 
@@ -253,6 +254,93 @@ Environment overrides:
 - `JUDYBOX_HOST=192.168.1.42` — force the *advertised* address if detection guesses wrong.
 - `JUDYBOX_BIND=192.168.1.42` (or `HOST`) — force the *bound* interface. Default `0.0.0.0`
   (all interfaces), which is what lets phones connect. Binding to loopback warns at startup.
+
+## Multiplayer simulator (party-day rehearsal without real guests)
+
+Recruiting the actual birthday guests to test the app would spoil the surprise, so
+`simulator/` drives the **real** server over the **real** WebSocket protocol with
+fake player phones — the same `hello`/`join`/`submit`/`special_pick` messages a real
+phone sends, and the same host-driven `host_action` progression a real host UI sends.
+Nothing bypasses the engine, the session roster, or scoring: a bug the simulator finds
+is a bug real phones would hit too.
+
+**1. Start the real server** (in one terminal):
+
+```bash
+npm run start          # or: npm run dev:server
+```
+
+**2. Run the simulator against it** (in another terminal):
+
+```bash
+npm run simulate -- --players 20
+```
+
+**3. A normal 20-player run**, including the special player (several games need her):
+
+```bash
+npm run simulate -- --players 20 --include-judy
+```
+
+**4. Chaos mode** — bounded, realistic disruption: staggered and near-deadline
+answers, temporary disconnects, mid-round reconnects, a duplicate submission
+attempt, and exactly one player who never answers a given round:
+
+```bash
+npm run simulate -- --players 20 --include-judy --chaos
+```
+
+**5. A reproducible chaos run**, for a scripted smoke test or to hand someone an
+exact failure to debug — the same seed always makes the same players skip,
+duplicate, and reconnect on the same rounds:
+
+```bash
+npm run simulate -- --players 20 --include-judy --chaos --seed 1234
+```
+
+Flags: `--players <n>` (default 6), `--host <url>` (default `http://127.0.0.1:3000`;
+point this at a real LAN address to rehearse against the actual party network),
+`--game <id>` (restrict to one game instead of the whole pack), `--chaos`,
+`--verbose` (per-player join/submit/reconnect lines), `--seed <n>` (default 42).
+
+**What the output means:**
+
+```
+21 players connected        # sockets opened and completed hello
+21 players joined           # session.join() accepted the name (20 + Judy)
+Game started: caption-this
+Round 1: 20 submissions     # submittedCount reached (or timed out at) expectedCount
+Round 1: revealed           # host issued REVEAL; Judy's judging window opens here
+Round 1: scored             # host issued SHOW_RESULTS; scoring has been applied
+...
+Result:
+  players: 21
+  rounds: 15                # total rounds played across every game in the pack
+  reconnects: 3              # deliberate mid-round disconnect/reconnect cycles (chaos only)
+  duplicate attempts: 1      # deliberate resubmits, expected to be rejected (chaos only)
+  failures: 0                # anything unexpected: rejected primary submission, a
+                              # player that never reached the expected state, a stuck
+                              # host action, an unreachable server, etc.
+```
+
+A non-zero `failures` count exits the process with code 1, so the simulator can run
+in CI or a pre-party smoke-test script. This is a load/protocol/reconnect rehearsal
+tool, not a substitute for testing with a few real phones — always do both before
+the party.
+
+Design notes, for anyone extending it:
+
+- The simulator has no game-specific logic. It reads the same `PlayerView.kind`
+  a real phone's UI switches on (`choose`, `rate`, `caption`, `draw`, `judge`) and
+  dispatches to one small strategy per input type (`simulator/src/strategies.ts`).
+  A new game only needs a new `PlayerView` kind for this to keep working.
+- The special player is whichever name the pack's `session.specialPlayerName`
+  reports (from the real `welcome` message), never a hardcoded "Judy" — packs that
+  rename her still work.
+- Chaos decisions (who skips, who reconnects, who double-submits, and every
+  delay) are derived from `--seed` plus the current game/round/player, not from
+  shared mutable state, so a run is exactly reproducible regardless of real
+  network timing jitter.
 
 ## The three surfaces
 
