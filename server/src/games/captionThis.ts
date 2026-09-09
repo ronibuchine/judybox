@@ -9,6 +9,8 @@ import type { ScoringEvent } from '../scoring/scoreboard.js';
 import { awardChosenWinner, DEFAULT_SCORING, type ScoringConfig } from '../scoring/strategies.js';
 
 export const CAPTION_THIS_TYPE = 'caption-this';
+/** Same mechanic, different flavour: a written quip instead of a caption. */
+export const QUIPLASH_TYPE = 'quiplash';
 
 export interface CaptionRound {
   prompt: string;
@@ -24,9 +26,10 @@ export interface CaptionThisConfig {
 }
 
 /**
- * Everyone but the special player writes an anonymous caption; she reads them
- * without names attached and picks a winner. Her pick is entered live via
- * `GameEngine.setSpecialPick`, never in content.
+ * Everyone but the special player writes an anonymous line of text; she reads
+ * them without names attached and picks a winner. Her pick is entered live via
+ * `GameEngine.setSpecialPick`, never in content. Backs both Caption This and
+ * Quiplash, which differ only in their prompts and display name.
  */
 export class CaptionThisGame implements GameDefinition {
   readonly phases = [
@@ -170,7 +173,7 @@ export class CaptionThisGame implements GameDefinition {
     if (isSpecial) {
       switch (context.phase) {
         case 'SUBMISSIONS_LOCKED':
-          return { kind: 'waiting', message: 'Captions are in. Get ready to judge.' };
+          return { kind: 'waiting', message: 'Answers are in. Get ready to judge.' };
         case 'REVEAL':
           return {
             kind: 'judge',
@@ -186,7 +189,7 @@ export class CaptionThisGame implements GameDefinition {
             message:
               context.phase === 'RESULTS'
                 ? `You picked ${this.winnerName(context) ?? 'no one'}. Look at the TV.`
-                : 'Waiting for captions.',
+                : 'Waiting for answers.',
           };
         default:
           return { kind: 'waiting', message: 'Waiting for the host.' };
@@ -204,14 +207,14 @@ export class CaptionThisGame implements GameDefinition {
         };
 
       case 'SUBMISSIONS_LOCKED':
-        return { kind: 'waiting', message: 'Captions are locked. Look at the TV.' };
+        return { kind: 'waiting', message: 'Locked in. Look at the TV.' };
 
       case 'REVEAL':
         return { kind: 'waiting', message: `${context.specialPlayerName} is choosing a winner.` };
 
       case 'RESULTS': {
         if (!submission) {
-          return { kind: 'round_result', correct: false, message: 'You did not submit a caption.' };
+          return { kind: 'round_result', correct: false, message: 'You did not submit an answer.' };
         }
         const won = context.specialPick === player.id;
         return {

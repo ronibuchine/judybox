@@ -1,4 +1,12 @@
-import { useEffect, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type FormEvent,
+  type PointerEvent as ReactPointerEvent,
+  type RefObject,
+} from 'react';
 import {
   playerNameKey,
   DRAWING_GRID,
@@ -10,6 +18,7 @@ import {
 } from '@judybox/shared';
 import { StatusBadge } from '../components/StatusBadge';
 import { SpecialNoteEditor } from '../components/SpecialNoteEditor';
+import { AnswerOption, Badge, Button, Media, WaitingState } from '../components/ui';
 import { useJudyBox } from '../net/useJudyBox';
 
 /** The phone surface: join with a name, then follow the server's view. */
@@ -29,45 +38,90 @@ export function PlayerScreen(): JSX.Element {
     clearJoinError,
   } = useJudyBox('player');
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const moreBelow = useScrollAffordance(scrollRef);
+
   return (
     <main className="screen screen--phone">
-      <header className="phone__header">
-        <h1>JudyBox</h1>
-        <StatusBadge status={status} />
+      <header className="phone__bar">
+        <p className="wordmark">
+          JudyBox<span className="wordmark__dot">.</span>
+        </p>
+        <div className="phone__who">
+          {self && <span className="phone__name">{self.name}</span>}
+          <StatusBadge status={status} />
+        </div>
       </header>
 
-      {self ? (
-        <>
-          <PlayPanel
-            name={self.name}
-            isSpecial={self.role === 'SPECIAL'}
-            session={session}
-            view={playerView}
-            notice={notice}
-            onSubmit={submit}
-            onSaveNote={setSpecialNote}
-            onPick={setSpecialPick}
-          />
-          {standing && <StandingBar standing={standing} />}
-        </>
-      ) : (
-        <JoinPanel
-          session={session}
-          disabled={status !== 'connected'}
-          errorMessage={joinError?.message ?? null}
-          onSubmit={join}
-          onClearError={clearJoinError}
-        />
-      )}
+      <div className="phone__scroll">
+        <div className="phone__main" ref={scrollRef}>
+          {self ? (
+            <PlayPanel
+              name={self.name}
+              isSpecial={self.role === 'SPECIAL'}
+              session={session}
+              view={playerView}
+              notice={notice}
+              onSubmit={submit}
+              onSaveNote={setSpecialNote}
+              onPick={setSpecialPick}
+            />
+          ) : (
+            <JoinPanel
+              session={session}
+              disabled={status !== 'connected'}
+              errorMessage={joinError?.message ?? null}
+              onSubmit={join}
+              onClearError={clearJoinError}
+            />
+          )}
+        </div>
+        {moreBelow && <span className="phone__more">More below ↓</span>}
+      </div>
+
+      {self && standing && <StandingBar standing={standing} />}
     </main>
   );
+}
+
+/**
+ * True while the scroller has content past the fold. Watches size and content
+ * changes as well as scrolling, because a round can add a comment box below
+ * the answer without the player touching anything.
+ */
+function useScrollAffordance(ref: RefObject<HTMLDivElement>): boolean {
+  const [moreBelow, setMoreBelow] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const update = (): void => {
+      setMoreBelow(element.scrollHeight - element.scrollTop - element.clientHeight > 24);
+    };
+
+    update();
+    element.addEventListener('scroll', update, { passive: true });
+    const resize = new ResizeObserver(update);
+    resize.observe(element);
+    const mutations = new MutationObserver(update);
+    mutations.observe(element, { childList: true, subtree: true, characterData: true });
+
+    return () => {
+      element.removeEventListener('scroll', update);
+      resize.disconnect();
+      mutations.disconnect();
+    };
+  }, [ref]);
+
+  return moreBelow;
 }
 
 function StandingBar({ standing }: { standing: PlayerStanding }): JSX.Element {
   return (
     <footer className="standing">
       <span className="standing__score">{standing.score.toLocaleString('en-US')}</span>
-      <span className="standing__meta">
+      <span className="standing__meta numeral">
         Rank {standing.rank} of {standing.totalPlayers}
       </span>
       {standing.delta !== 0 && (
@@ -77,6 +131,37 @@ function StandingBar({ standing }: { standing: PlayerStanding }): JSX.Element {
         </span>
       )}
     </footer>
+  );
+}
+
+/**
+ * A private aside for the special player, chosen from the prompt so it stays
+ * put while she reads it. Nobody else's screen ever shows these.
+ */
+const SPECIAL_ASIDES = [
+  'The whole room is waiting on your taste.',
+  'No pressure. Well — a little pressure.',
+  'Tonight your opinion is the scoring rubric.',
+  'They are all guessing. You simply know.',
+  'This only counts because you said so.',
+  'Be honest. It is more fun when you are honest.',
+];
+
+function specialAside(seed: string): string {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i += 1) hash = (hash * 31 + seed.charCodeAt(i)) | 0;
+  return SPECIAL_ASIDES[Math.abs(hash) % SPECIAL_ASIDES.length] as string;
+}
+
+function SpecialCue({ seed, label }: { seed: string; label: string }): JSX.Element {
+  return (
+    <div className="special-card">
+      <div className="special-card__head">
+        <Badge tone="special">{label}</Badge>
+        <span className="special-card__rule" />
+      </div>
+      <p className="special-card__aside">{specialAside(seed)}</p>
+    </div>
   );
 }
 
@@ -104,132 +189,148 @@ function PlayPanel({
   if (!view || view.kind === 'idle') {
     const total = session?.players.length ?? 0;
     return (
-      <section className="phone__body">
-        <p className="phone__headline">You&rsquo;re in, {name}.</p>
-        {isSpecial && <p className="badge badge--special">Special player</p>}
-        <p className="phone__sub">{view?.message ?? 'Waiting for the host to start.'}</p>
-        <p className="phone__meta">
-          {total} {total === 1 ? 'player' : 'players'} in the lobby
+      <section className="play play--center">
+        {isSpecial && <Badge tone="special">Guest of honour</Badge>}
+        <p className="play__eyebrow">You&rsquo;re in</p>
+        <p className="enter__title">{name}</p>
+        <WaitingState sub={view?.message ?? 'Waiting for the host to start.'} />
+        <p className="play__meta">
+          {total} {total === 1 ? 'person' : 'people'} in the lobby
         </p>
       </section>
     );
   }
 
   if (view.kind === 'choose') {
+    const answered = view.selectedOptionId !== null;
     return (
-      <section className="phone__body">
-        {view.headline && (
-          <p className={`phone__headline-sm${view.special ? ' phone__headline-sm--special' : ''}`}>
-            {view.headline}
-          </p>
-        )}
-        {view.special && <p className="badge badge--special">Private answer</p>}
+      <section className={`play${view.special ? ' play--special' : ''}`}>
+        {view.special && <SpecialCue seed={view.prompt} label="Only you see this" />}
+        {view.headline && !view.special && <p className="play__eyebrow">{view.headline}</p>}
         {view.note?.editable && (
-          <p className="phone__cue">Pick an answer, then add a comment for the TV below.</p>
+          <p className="play__hint">Answer first — there is a comment box below for the TV.</p>
         )}
-        {view.imageUrl && <img className="phone__image" src={view.imageUrl} alt={view.prompt} />}
-        <p className="phone__prompt">{view.prompt}</p>
-        <div className="options">
-          {view.options.map((option) => {
+        {view.imageUrl && (
+          <Media src={view.imageUrl} alt={view.prompt} className="play__media" />
+        )}
+        <p className="play__prompt">{view.prompt}</p>
+        <div className="answers">
+          {view.options.map((option, index) => {
             const selected = view.selectedOptionId === option.id;
             return (
-              <button
+              <AnswerOption
                 key={option.id}
-                type="button"
-                className={`button option${selected ? ' option--selected' : ''}`}
-                disabled={view.selectedOptionId !== null || view.locked}
+                index={index}
+                label={option.label}
+                selected={selected}
+                dimmed={answered && !selected}
+                disabled={answered || view.locked}
                 onClick={() => onSubmit(option.id)}
-              >
-                {option.label}
-              </button>
+              />
             );
           })}
         </div>
-        {view.selectedOptionId !== null && <p className="phone__sub">Answer locked in.</p>}
-        {view.note && <SpecialNoteEditor note={view.note} onSave={onSaveNote} />}
-        {notice && <p className="phone__error">{notice}</p>}
+        {answered && <p className="play__hint">Locked in. Look at the TV.</p>}
+        {view.note && (
+          <div className="play__note">
+            <SpecialNoteEditor note={view.note} onSave={onSaveNote} />
+          </div>
+        )}
+        {notice && <p className="play__error">{notice}</p>}
       </section>
     );
   }
 
   if (view.kind === 'rate') {
     return (
-      <section className="phone__body">
-        {view.headline && (
-          <p className={`phone__headline-sm${view.special ? ' phone__headline-sm--special' : ''}`}>
-            {view.headline}
-          </p>
-        )}
-        {view.special && <p className="badge badge--special">Private score</p>}
+      <section className={`play${view.special ? ' play--special' : ''}`}>
+        {view.special && <SpecialCue seed={view.prompt} label="Only you see this" />}
+        {view.headline && !view.special && <p className="play__eyebrow">{view.headline}</p>}
         {view.note?.editable && (
-          <p className="phone__cue">Set your score, then add a comment for the TV below.</p>
+          <p className="play__hint">Set your score — there is a comment box below for the TV.</p>
         )}
-        {view.imageUrl && <img className="phone__image" src={view.imageUrl} alt={view.prompt} />}
-        <p className="phone__prompt">{view.prompt}</p>
+        {view.imageUrl && (
+          <Media src={view.imageUrl} alt={view.prompt} className="play__media" />
+        )}
+        <p className="play__prompt">{view.prompt}</p>
         <RatingSlider view={view} onSubmit={onSubmit} />
-        {view.note && <SpecialNoteEditor note={view.note} onSave={onSaveNote} />}
-        {notice && <p className="phone__error">{notice}</p>}
+        {view.note && (
+          <div className="play__note">
+            <SpecialNoteEditor note={view.note} onSave={onSaveNote} />
+          </div>
+        )}
+        {notice && <p className="play__error">{notice}</p>}
       </section>
     );
   }
 
   if (view.kind === 'round_result') {
     return (
-      <section className="phone__body">
-        <p className="phone__headline">{view.message}</p>
+      <section className="play play--center">
         {view.correct !== null && (
-          <p className={`badge ${view.correct ? 'badge--ok' : 'badge--miss'}`}>
-            {view.correct ? 'Correct' : 'Incorrect'}
-          </p>
+          <Badge tone={view.correct ? 'ok' : 'miss'}>{view.correct ? 'Correct' : 'Missed it'}</Badge>
         )}
-        {view.note && <SpecialNoteEditor note={view.note} onSave={onSaveNote} />}
-        {notice && <p className="phone__error">{notice}</p>}
+        <p className="play__prompt">{view.message}</p>
+        {view.note && (
+          <div className="play__note">
+            <SpecialNoteEditor note={view.note} onSave={onSaveNote} />
+          </div>
+        )}
+        {notice && <p className="play__error">{notice}</p>}
       </section>
     );
   }
 
   if (view.kind === 'caption') {
     return (
-      <section className="phone__body">
-        <p className="phone__cue">Write an anonymous caption for the TV.</p>
-        {view.imageUrl && <img className="phone__image" src={view.imageUrl} alt={view.prompt} />}
-        <p className="phone__prompt">{view.prompt}</p>
+      <section className="play">
+        <p className="play__eyebrow">Anonymous</p>
+        {view.imageUrl && (
+          <Media src={view.imageUrl} alt={view.prompt} className="play__media" />
+        )}
+        <p className="play__prompt">{view.prompt}</p>
+        <p className="play__hint">Names only appear on the TV once it&rsquo;s revealed.</p>
         <CaptionInput view={view} onSubmit={onSubmit} />
-        {notice && <p className="phone__error">{notice}</p>}
+        {notice && <p className="play__error">{notice}</p>}
       </section>
     );
   }
 
   if (view.kind === 'draw') {
     return (
-      <section className="phone__body">
-        <p className="phone__prompt">{view.prompt}</p>
+      <section className="play">
+        <p className="play__eyebrow">Draw this</p>
+        <p className="play__prompt">{view.prompt}</p>
         {view.submitted ? (
-          <p className="phone__sub">Your drawing is in. Look at the TV.</p>
+          <WaitingState title="Your drawing is in." sub="Look at the TV." />
         ) : (
           <DrawCanvas view={view} onSubmit={onSubmit} />
         )}
-        {notice && <p className="phone__error">{notice}</p>}
+        {notice && <p className="play__error">{notice}</p>}
       </section>
     );
   }
 
   if (view.kind === 'judge') {
     return (
-      <section className="phone__body">
-        <p className="badge badge--special">Pick a winner</p>
-        <p className="phone__prompt">{view.prompt}</p>
+      <section className="play play--special">
+        <SpecialCue seed={view.prompt} label="Your call" />
+        <p className="play__prompt">{view.prompt}</p>
         <JudgePanel view={view} onPick={onPick} />
-        {notice && <p className="phone__error">{notice}</p>}
+        {notice && <p className="play__error">{notice}</p>}
       </section>
     );
   }
 
   return (
-    <section className="phone__body">
-      <p className="phone__headline">{view.message}</p>
-      {view.note && <SpecialNoteEditor note={view.note} onSave={onSaveNote} />}
-      {notice && <p className="phone__error">{notice}</p>}
+    <section className="play play--center">
+      <WaitingState title={view.message} />
+      {view.note && (
+        <div className="play__note">
+          <SpecialNoteEditor note={view.note} onSave={onSaveNote} />
+        </div>
+      )}
+      {notice && <p className="play__error">{notice}</p>}
     </section>
   );
 }
@@ -252,33 +353,42 @@ function RatingSlider({
     if (view.submittedValue !== null) setValue(view.submittedValue);
   }, [view.submittedValue]);
 
+  const span = view.max - view.min;
+  const pct = span > 0 ? ((value - view.min) / span) * 100 : 0;
+
   return (
-    <div className="rating">
-      <output className="rating__value">{value}</output>
-      <input
-        className="rating__slider"
-        type="range"
-        min={view.min}
-        max={view.max}
-        step={view.step}
-        value={value}
-        disabled={submitted || view.locked}
-        aria-label="Score"
-        onChange={(event) => setValue(Number(event.target.value))}
-      />
-      <div className="rating__ends">
-        <span>{view.min}</span>
-        <span>{view.max}</span>
+    <>
+      <div className="rate">
+        <output className="rate__value">{value}</output>
+        <input
+          className="rate__slider"
+          style={{ '--pct': pct } as CSSProperties}
+          type="range"
+          min={view.min}
+          max={view.max}
+          step={view.step}
+          value={value}
+          disabled={submitted || view.locked}
+          aria-label="Score"
+          onChange={(event) => setValue(Number(event.target.value))}
+        />
+        <div className="rate__ends">
+          <span>{view.min}</span>
+          <span>{view.max}</span>
+        </div>
       </div>
-      <button
-        type="button"
-        className="button"
-        disabled={submitted || view.locked}
-        onClick={() => onSubmit(String(value))}
-      >
-        {submitted ? `Locked in at ${view.submittedValue}` : 'Submit'}
-      </button>
-    </div>
+      <div className="play__actions">
+        <Button
+          variant="primary"
+          size="lg"
+          block
+          disabled={submitted || view.locked}
+          onClick={() => onSubmit(String(value))}
+        >
+          {submitted ? `Locked in at ${view.submittedValue}` : 'Submit score'}
+        </Button>
+      </div>
+    </>
   );
 }
 
@@ -294,29 +404,37 @@ function CaptionInput({
   const shown = submitted ? (view.submittedText ?? '') : text;
 
   return (
-    <div className="caption">
-      <textarea
-        className="input caption__input"
-        value={shown}
-        onChange={(event) => setText(event.target.value)}
-        maxLength={view.maxLength}
-        placeholder="Type your caption\u2026"
-        disabled={submitted}
-        rows={3}
-        aria-label="Caption"
-      />
-      <p className="phone__meta">
-        {shown.length} / {view.maxLength}
-      </p>
-      <button
-        type="button"
-        className="button"
-        disabled={submitted || text.trim() === ''}
-        onClick={() => onSubmit(text)}
-      >
-        {submitted ? 'Submitted' : 'Submit caption'}
-      </button>
-    </div>
+    <>
+      <div className="compose">
+        <textarea
+          className="field field--area"
+          value={shown}
+          onChange={(event) => setText(event.target.value)}
+          maxLength={view.maxLength}
+          placeholder="Type your answer…"
+          disabled={submitted}
+          rows={3}
+          aria-label="Your answer"
+        />
+        <div className="compose__foot">
+          <span className="play__meta">
+            {shown.length} / {view.maxLength}
+          </span>
+          {submitted && <Badge tone="ok">Sent</Badge>}
+        </div>
+      </div>
+      <div className="play__actions">
+        <Button
+          variant="primary"
+          size="lg"
+          block
+          disabled={submitted || text.trim() === ''}
+          onClick={() => onSubmit(text)}
+        >
+          {submitted ? 'Submitted' : 'Submit answer'}
+        </Button>
+      </div>
+    </>
   );
 }
 
@@ -330,8 +448,8 @@ function paintStrokes(
   for (const stroke of strokes) {
     if (stroke.points.length < 4) continue;
     ctx.globalCompositeOperation = stroke.erase ? 'destination-out' : 'source-over';
-    ctx.strokeStyle = '#1a1030';
-    ctx.lineWidth = stroke.size === 'thick' ? 10 : 3;
+    ctx.strokeStyle = '#241f1c';
+    ctx.lineWidth = stroke.size === 'thick' ? width / 32 : width / 110;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.beginPath();
@@ -422,68 +540,70 @@ function DrawCanvas({
   };
 
   return (
-    <div className="draw">
-      <canvas
-        ref={canvasRef}
-        className="draw__canvas"
-        width={320}
-        height={320}
-        onPointerDown={handleDown}
-        onPointerMove={handleMove}
-        onPointerUp={commit}
-        onPointerLeave={commit}
-      />
-      <div className="draw__tools">
-        <button
-          type="button"
-          className={`button button--quiet${brush === 'thin' && !erasing ? ' button--active' : ''}`}
-          onClick={() => {
-            setBrush('thin');
-            setErasing(false);
-          }}
-        >
-          Thin
-        </button>
-        <button
-          type="button"
-          className={`button button--quiet${brush === 'thick' && !erasing ? ' button--active' : ''}`}
-          onClick={() => {
-            setBrush('thick');
-            setErasing(false);
-          }}
-        >
-          Thick
-        </button>
-        <button
-          type="button"
-          className={`button button--quiet${erasing ? ' button--active' : ''}`}
-          onClick={() => setErasing(true)}
-        >
-          Eraser
-        </button>
-        <button
-          type="button"
-          className="button button--quiet"
-          disabled={strokes.length === 0}
-          onClick={() => setStrokes([])}
-        >
-          Clear
-        </button>
+    <>
+      <div className="draw">
+        <canvas
+          ref={canvasRef}
+          className="draw__canvas"
+          width={512}
+          height={512}
+          onPointerDown={handleDown}
+          onPointerMove={handleMove}
+          onPointerUp={commit}
+          onPointerLeave={commit}
+        />
+        <div className="draw__tools">
+          <Button
+            variant="ghost"
+            active={brush === 'thin' && !erasing}
+            onClick={() => {
+              setBrush('thin');
+              setErasing(false);
+            }}
+          >
+            Thin
+          </Button>
+          <Button
+            variant="ghost"
+            active={brush === 'thick' && !erasing}
+            onClick={() => {
+              setBrush('thick');
+              setErasing(false);
+            }}
+          >
+            Thick
+          </Button>
+          <Button variant="ghost" active={erasing} onClick={() => setErasing(true)}>
+            Erase
+          </Button>
+          <Button variant="ghost" disabled={strokes.length === 0} onClick={() => setStrokes([])}>
+            Clear
+          </Button>
+        </div>
+        {full && <p className="play__hint">That is as much detail as this canvas holds.</p>}
       </div>
-      {full && <p className="phone__sub">That is as much detail as this canvas holds.</p>}
-      <button
-        type="button"
-        className="button"
-        disabled={strokes.length === 0}
-        onClick={() => onSubmit(JSON.stringify(strokes))}
-      >
-        Submit drawing
-      </button>
-    </div>
+      <div className="play__actions">
+        <Button
+          variant="primary"
+          size="lg"
+          block
+          disabled={strokes.length === 0}
+          onClick={() => onSubmit(JSON.stringify(strokes))}
+        >
+          Submit drawing
+        </Button>
+      </div>
+    </>
   );
 }
 
-function DrawingThumbnail({ strokes }: { strokes: readonly DrawStroke[] }): JSX.Element {
+function DrawingThumbnail({
+  strokes,
+  className = 'judge__thumb',
+}: {
+  strokes: readonly DrawStroke[];
+  className?: string;
+}): JSX.Element {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -494,7 +614,80 @@ function DrawingThumbnail({ strokes }: { strokes: readonly DrawStroke[] }): JSX.
     paintStrokes(ctx, strokes, canvas.width, canvas.height);
   }, [strokes]);
 
-  return <canvas ref={canvasRef} className="judge__thumb" width={160} height={160} />;
+  return <canvas ref={canvasRef} className={className} width={320} height={320} />;
+}
+
+/**
+ * Drawings are judged one at a time on a swipeable deck. A scrollable list of
+ * thumbnails would make every entry too small to actually judge.
+ */
+function JudgeDeck({
+  entries,
+  pickedId,
+  onPick,
+}: {
+  entries: Extract<PlayerView, { kind: 'judge' }>['entries'];
+  pickedId: string | null;
+  onPick: (targetPlayerId: string) => void;
+}): JSX.Element {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+
+  const step = (delta: number): void => {
+    const track = trackRef.current;
+    if (!track) return;
+    const next = Math.max(0, Math.min(entries.length - 1, active + delta));
+    track.scrollTo({ left: next * (track.clientWidth + 12), behavior: 'smooth' });
+  };
+
+  return (
+    <div className="deck">
+      <div
+        className="deck__track"
+        ref={trackRef}
+        onScroll={(event) => {
+          const track = event.currentTarget;
+          setActive(Math.round(track.scrollLeft / (track.clientWidth + 12)));
+        }}
+      >
+        {entries.map((entry) => {
+          const picked = pickedId === entry.id;
+          return (
+            <div
+              key={entry.id}
+              className={`deck__slide${picked ? ' deck__slide--picked' : ''}`}
+            >
+              <DrawingThumbnail strokes={entry.strokes ?? []} className="deck__canvas" />
+              <Button
+                variant={picked ? 'primary' : 'secondary'}
+                block
+                onClick={() => onPick(entry.id)}
+              >
+                {picked ? 'Picked' : 'Pick this one'}
+              </Button>
+            </div>
+          );
+        })}
+      </div>
+      <div className="deck__foot">
+        <Button variant="ghost" size="sm" disabled={active === 0} onClick={() => step(-1)}>
+          ‹
+        </Button>
+        <span className="deck__count">
+          {active + 1} / {entries.length}
+        </span>
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={active >= entries.length - 1}
+          onClick={() => step(1)}
+        >
+          ›
+        </Button>
+      </div>
+      <p className="play__hint">Swipe to see them all. Tap again to change your mind.</p>
+    </div>
+  );
 }
 
 /** Shared by both anonymous-judging games: tap an entry, tap again to change your mind. */
@@ -506,34 +699,33 @@ function JudgePanel({
   onPick: (targetPlayerId: string) => void;
 }): JSX.Element {
   if (view.entries.length === 0) {
-    return <p className="phone__sub">No submissions came in this round.</p>;
+    return <WaitingState title="No submissions came in this round." />;
+  }
+
+  if (view.entries.some((entry) => entry.strokes !== undefined)) {
+    return <JudgeDeck entries={view.entries} pickedId={view.pickedId} onPick={onPick} />;
   }
 
   return (
     <div className="judge">
-      <ul className="judge__list">
-        {view.entries.map((entry) => {
-          const picked = view.pickedId === entry.id;
-          return (
-            <li key={entry.id}>
-              <button
-                type="button"
-                className={`judge__entry${picked ? ' judge__entry--picked' : ''}`}
-                onClick={() => onPick(entry.id)}
-              >
-                {entry.text !== undefined ? (
-                  <span className="judge__text">{entry.text}</span>
-                ) : (
-                  <DrawingThumbnail strokes={entry.strokes ?? []} />
-                )}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-      {view.pickedId !== null && (
-        <p className="phone__sub">Picked. Tap another entry to change your mind.</p>
-      )}
+      {view.entries.map((entry) => {
+        const picked = view.pickedId === entry.id;
+        return (
+          <button
+            key={entry.id}
+            type="button"
+            className={`judge__entry${picked ? ' judge__entry--picked' : ''}`}
+            onClick={() => onPick(entry.id)}
+          >
+            <span>&ldquo;{entry.text}&rdquo;</span>
+          </button>
+        );
+      })}
+      <p className="play__hint">
+        {view.pickedId !== null
+          ? 'Picked. Tap another to change your mind.'
+          : 'Tap the one you like best.'}
+      </p>
     </div>
   );
 }
@@ -572,42 +764,39 @@ function JoinPanel({
 
   if (confirmingSpecial) {
     return (
-      <section className="phone__body">
-        <p className="phone__headline">You&rsquo;re joining as {specialName}.</p>
-        <p className="phone__sub">
-          This is the special player for this party. Only one device can be {specialName}.
+      <section className="enter">
+        <Badge tone="special">Guest of honour</Badge>
+        <p className="enter__title">You&rsquo;re joining as {specialName}.</p>
+        <p className="enter__sub">
+          This party has one guest of honour, and only one device can be {specialName}.
         </p>
-        {errorMessage && <p className="phone__error">{errorMessage}</p>}
-        <div className="phone__actions">
-          <button
-            type="button"
-            className="button"
-            onClick={() => onSubmit(name)}
-            disabled={disabled}
-          >
-            Confirm
-          </button>
-          <button
-            type="button"
-            className="button button--quiet"
+        {errorMessage && <p className="play__error">{errorMessage}</p>}
+        <div className="play__actions">
+          <Button variant="primary" size="lg" block onClick={() => onSubmit(name)} disabled={disabled}>
+            That&rsquo;s me
+          </Button>
+          <Button
+            variant="ghost"
+            block
             onClick={() => {
               setConfirmingSpecial(false);
               onClearError();
             }}
           >
             Use a different name
-          </button>
+          </Button>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="phone__body">
-      <p className="phone__headline">What&rsquo;s your name?</p>
-      <form className="phone__form" onSubmit={handleSubmit}>
+    <section className="enter">
+      <p className="play__eyebrow">Welcome</p>
+      <p className="enter__title">What should we call you?</p>
+      <form className="enter__form" onSubmit={handleSubmit}>
         <input
-          className="input"
+          className="field field--center"
           value={name}
           onChange={(event) => {
             setName(event.target.value);
@@ -619,13 +808,19 @@ function JoinPanel({
           autoCapitalize="words"
           aria-label="Your name"
         />
-        {errorMessage && <p className="phone__error">{errorMessage}</p>}
+        {errorMessage && <p className="play__error">{errorMessage}</p>}
         {wantsSpecial && !errorMessage && (
-          <p className="phone__note">{specialName} is the special player for this party.</p>
+          <p className="play__hint">{specialName} is the guest of honour tonight.</p>
         )}
-        <button type="submit" className="button" disabled={disabled || name.trim() === ''}>
-          {disabled ? 'Connecting…' : 'Join'}
-        </button>
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          block
+          disabled={disabled || name.trim() === ''}
+        >
+          {disabled ? 'Connecting…' : 'Join the party'}
+        </Button>
       </form>
     </section>
   );

@@ -1,0 +1,109 @@
+/*
+ * Design tokens. Every colour, size, radius, shadow and duration in the app
+ * comes from here so the six games look like one product.
+ *
+ * Palette: a warm, low-light gallery. Near-black with a brown undertone,
+ * bone-white text, clay and brass accents. Nothing neon, nothing pure grey.
+ */
+
+:root {
+  /* ---- surfaces ---- */
+  --c-ink-000: #0d0b0a;
+  --c-ink-050: #141110;
+  --c-ink-100: #1b1715;
+  --c-ink-200: #241f1c;
+  --c-ink-300: #302925;
+  --c-line: #2e2724;
+  --c-line-strong: #453b35;
+
+  /* Light surface used behind QR codes, drawings and image mats. */
+  --c-canvas: #f7f3ec;
+
+  /* ---- text ---- */
+  --c-paper: #f6f1e9;
+  --c-paper-muted: #c2b8ac;
+  --c-paper-faint: #8d8379;
+  --c-on-accent: #1a0f0a;
+
+  /* ---- accents ---- */
+  --c-clay: #d98462;
+  --c-clay-deep: #b1613f;
+  --c-clay-wash: rgba(217, 132, 98, 0.12);
+  --c-brass: #e6c07b;
+  --c-brass-wash: rgba(230, 192, 123, 0.12);
+  --c-sage: #93b08f;
+  --c-sage-wash: rgba(147, 176, 143, 0.14);
+  --c-rust: #cc6250;
+  --c-rust-wash: rgba(204, 98, 80, 0.12);
+
+  /* ---- type ---- */
+  --font-display: ui-serif, 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia,
+    'Times New Roman', serif;
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, monospace;
+
+  --t-xs: 0.75rem;
+  --t-sm: 0.875rem;
+  --t-base: 1rem;
+  --t-md: 1.0625rem;
+  --t-lg: 1.25rem;
+  --t-xl: 1.5rem;
+  --t-2xl: 2rem;
+  --t-3xl: 2.75rem;
+
+  /* Fluid sizes for the TV, which is read from several metres away. */
+  --tv-eyebrow: clamp(0.85rem, 0.95vw, 1.15rem);
+  --tv-kicker: clamp(1rem, 1.45vw, 1.75rem);
+  --tv-title: clamp(2rem, 4.2vw, 4.75rem);
+  --tv-title-sm: clamp(1.5rem, 2.6vw, 3rem);
+  --tv-body: clamp(1.05rem, 1.6vw, 1.9rem);
+  --tv-numeral: clamp(3rem, 7.5vw, 8.5rem);
+
+  --lh-tight: 1.08;
+  --lh-snug: 1.25;
+  --lh-body: 1.5;
+  --track-wide: 0.18em;
+  --track-mid: 0.08em;
+
+  /* ---- spacing (4px base) ---- */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 2.75rem;
+  --s-8: 3.5rem;
+  --s-9: 5rem;
+
+  /* ---- shape ---- */
+  --r-xs: 4px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-pill: 999px;
+
+  /* ---- elevation ---- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 12px 28px -18px rgba(0, 0, 0, 0.9);
+  --shadow-lg: 0 32px 70px -40px rgba(0, 0, 0, 1);
+
+  /* ---- motion ---- */
+  --dur-1: 120ms;
+  --dur-2: 220ms;
+  --dur-3: 420ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ---- layout ---- */
+  --tap: 3.25rem;
+  --host-max: 74rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 0ms;
+    --dur-2: 0ms;
+    --dur-3: 0ms;
+  }
+}

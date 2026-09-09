@@ -1,7 +1,5 @@
 import type { LeaderboardRow } from '@judybox/shared';
 
-const MEDALS = ['🥇', '🥈', '🥉'];
-
 function formatScore(score: number): string {
   return score.toLocaleString('en-US');
 }
@@ -9,32 +7,31 @@ function formatScore(score: number): string {
 /** Reusable standings table. Used on the TV and in the host panel. */
 export function Leaderboard({
   rows,
-  compact = false,
+  variant = 'default',
 }: {
   rows: LeaderboardRow[];
-  compact?: boolean;
+  variant?: 'tv' | 'compact' | 'runners' | 'default';
 }): JSX.Element {
   if (rows.length === 0) {
-    return <p className="stage__sub">No players yet.</p>;
+    return <p className="board__empty">No players yet.</p>;
   }
 
   return (
-    <ol className={`leaderboard${compact ? ' leaderboard--compact' : ''}`}>
-      {rows.map((row) => (
-        <li key={row.playerId} className="leaderboard__row">
-          <span className="leaderboard__rank">
-            {row.rank <= MEDALS.length ? MEDALS[row.rank - 1] : row.rank}
+    <ol className={`board${variant === 'default' ? '' : ` board--${variant}`}`}>
+      {rows.map((row, index) => (
+        <li
+          key={row.playerId}
+          className={`board__row${row.rank === 1 ? ' board__row--leader' : ''}`}
+          // Short, bounded stagger: the list is readable before it finishes.
+          style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}
+        >
+          <span className="board__rank numeral">{row.rank}</span>
+          <span className="board__name">{row.playerName}</span>
+          {/* Always rendered, so gaining points never nudges the name sideways. */}
+          <span className={`board__delta numeral${row.delta > 0 ? '' : ' board__delta--down'}`}>
+            {row.delta === 0 ? '' : `${row.delta > 0 ? '+' : ''}${formatScore(row.delta)}`}
           </span>
-          <span className="leaderboard__name">{row.playerName}</span>
-          {row.delta !== 0 && (
-            <span
-              className={`leaderboard__delta${row.delta > 0 ? '' : ' leaderboard__delta--down'}`}
-            >
-              {row.delta > 0 ? '+' : ''}
-              {formatScore(row.delta)}
-            </span>
-          )}
-          <span className="leaderboard__score">{formatScore(row.score)}</span>
+          <span className="board__score numeral">{formatScore(row.score)}</span>
         </li>
       ))}
     </ol>

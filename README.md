@@ -164,9 +164,9 @@ Unlike the closest-guess strategy, this is **absolute rather than competitive**:
 twenty people within 5 all get 400. With twenty phones in the room, ranking would
 mean nineteen people getting nothing.
 
-### Caption This and Draw This
+### Caption This, Quiplash, and Draw This
 
-Both are the same mechanic in different content types: everyone but Judy submits
+All three are the same mechanic in different content types: everyone but Judy submits
 something anonymous, the host locks submissions, **Judy reads/watches them without
 names attached and picks a winner on her own phone**, and the winner scores. This is
 a different action from every other game so far — she is not answering a question,
@@ -176,8 +176,12 @@ parallel to `setSpecialNote()` (same phase-gating pattern, same clear-per-round
 behaviour). Everything else — submission handling, scoring, transitions, session,
 reconnect — is unchanged.
 
-**Caption This** ([server/src/games/captionThis.ts](server/src/games/captionThis.ts)):
-free-text captions, optionally with an image.
+**Caption This** and **Quiplash** ([server/src/games/captionThis.ts](server/src/games/captionThis.ts))
+are the exact same `CaptionThisGame` class under two content `type`s
+(`caption-this` and `quiplash`): free text, optionally with an image. Quiplash is
+just a differently-themed pack of prompts — a punchline instead of an image
+caption — so it needed no new code, only a second `type` registered against the
+same class in [server/src/games/registry.ts](server/src/games/registry.ts).
 
 ```jsonc
 {
@@ -194,7 +198,19 @@ free-text captions, optionally with an image.
 }
 ```
 
-Captions are capped at `MAX_CAPTION_LENGTH` (140) characters, empty captions are
+```jsonc
+{
+  "id": "quiplash",
+  "type": "quiplash",
+  "name": "Quiplash",
+  "scoring": { "specialPick": 150 },
+  "rounds": [
+    { "prompt": "Judy's ultimate tactic to convince Roni to finally buy a dishwasher" }
+  ]
+}
+```
+
+Entries are capped at `MAX_CAPTION_LENGTH` (140) characters, empty entries are
 rejected, and a pack must not contain a pre-set `winner`/`judyPick` — she picks live.
 
 **Draw This** ([server/src/games/drawThis.ts](server/src/games/drawThis.ts)): a

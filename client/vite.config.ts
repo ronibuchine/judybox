@@ -13,6 +13,8 @@ export default defineConfig({
     proxy: {
       '/ws': { target: SERVER_ORIGIN, ws: true },
       '/api': { target: SERVER_ORIGIN },
+      // Round images live with the content pack, not the client bundle.
+      '/assets': { target: SERVER_ORIGIN },
     },
   },
   build: {

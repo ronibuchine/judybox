@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { ViewOption } from '@judybox/shared';
 import type { GameDefinition } from '../engine/types.js';
-import { CAPTION_THIS_TYPE, CaptionThisGame, type CaptionRound } from './captionThis.js';
+import { CAPTION_THIS_TYPE, CaptionThisGame, QUIPLASH_TYPE, type CaptionRound } from './captionThis.js';
 import { DRAW_THIS_TYPE, DrawThisGame, type DrawRound } from './drawThis.js';
 import { MULTIPLE_CHOICE_TYPE, MultipleChoiceGame, type MultipleChoiceRound } from './multipleChoice.js';
 import {
@@ -20,6 +20,7 @@ export const KNOWN_GAME_TYPES = [
   WHAT_WOULD_JUDY_DO_TYPE,
   ROTTEN_TOMATOES_TYPE,
   CAPTION_THIS_TYPE,
+  QUIPLASH_TYPE,
   DRAW_THIS_TYPE,
 ] as const;
 
@@ -297,6 +298,18 @@ export function buildGame(
       });
 
     case CAPTION_THIS_TYPE:
+      return new CaptionThisGame({
+        id,
+        name,
+        scoring,
+        rounds: rounds.map((round, index) =>
+          parseCaptionRound(round, `${where} rounds[${index}]`, context),
+        ),
+      });
+
+    // Identical mechanic to Caption This: free text, judged live. Only the
+    // prompts and display name differ, both of which are content, not code.
+    case QUIPLASH_TYPE:
       return new CaptionThisGame({
         id,
         name,

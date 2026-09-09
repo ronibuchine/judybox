@@ -1,65 +1,76 @@
 import type { ConnectionInfo } from '@judybox/shared';
 import { StatusBadge } from '../components/StatusBadge';
 import { DisplayViewPanel } from '../components/DisplayViewPanel';
+import { QrJoinPanel, Roster } from '../components/ui';
 import { useApi, useJudyBox } from '../net/useJudyBox';
 
 /** The TV surface. Optimised for reading from across a room. */
 export function DisplayScreen(): JSX.Element {
-  const { status, session, displayView } = useJudyBox('display');
+  const { status, session, engine, displayView } = useJudyBox('display');
   const { data, error } = useApi<ConnectionInfo>('/api/connection-info');
 
   const players = session?.players ?? [];
   const inLobby = !displayView || displayView.kind === 'lobby';
+  const showRound = Boolean(engine && engine.roundCount > 0 && engine.roundNumber > 0);
+  // Re-keying replays the entrance animation when the server moves everyone on.
+  const viewKey = [
+    displayView?.kind ?? 'lobby',
+    engine?.gameId ?? '',
+    engine?.roundNumber ?? 0,
+    engine?.phase ?? '',
+  ].join(':');
 
   return (
     <main className="screen screen--tv">
-      <header className="tv__header">
-        <h1 className="tv__title">JudyBox</h1>
-        <StatusBadge status={status} />
+      <header className="tv__bar">
+        <div className="tv__brand">
+          <p className="wordmark">
+            JudyBox<span className="wordmark__dot">.</span>
+          </p>
+          {!inLobby && data?.partyName && <p className="tv__party">{data.partyName}</p>}
+        </div>
+        <div className="tv__now">
+          {engine?.gameName && <span className="tv__now-game">{engine.gameName}</span>}
+          {showRound && engine && (
+            <span className="tv__now-round">
+              Round {engine.roundNumber} / {engine.roundCount}
+            </span>
+          )}
+          <StatusBadge status={status} />
+        </div>
       </header>
 
-      {inLobby ? (
-        <section className="tv__lobby">
-          <div className="tv__join">
-            <p className="tv__step">Scan to join</p>
-            <div className="tv__qr">
-              {data ? (
-                <img src={data.qrDataUrl} alt={`QR code linking to ${data.joinUrl}`} />
+      <div className="tv__main">
+        {inLobby ? (
+          <section className="lobby">
+            <QrJoinPanel
+              qrDataUrl={data?.qrDataUrl ?? null}
+              joinUrl={data?.joinUrl ?? null}
+              error={error}
+            />
+
+            <div className="lobby__side">
+              <p className="eyebrow">Welcome</p>
+              <h2 className="lobby__title">{data?.partyName ?? 'The party is open'}</h2>
+              <div className="lobby__count">
+                <span className="lobby__count-value numeral">{players.length}</span>
+                <span className="lobby__count-label">
+                  {players.length === 1 ? 'player in' : 'players in'}
+                </span>
+              </div>
+              {players.length === 0 ? (
+                <p className="lobby__empty">Waiting for the first player…</p>
               ) : (
-                <div className="tv__qr-placeholder">{error ?? 'Generating QR…'}</div>
+                <div className="lobby__roster">
+                  <Roster players={players} variant="tv" />
+                </div>
               )}
             </div>
-            <p className="tv__url">{data?.joinUrl ?? '…'}</p>
-            <p className="tv__hint">Same Wi-Fi. No app to install.</p>
-          </div>
-
-          <div className="tv__roster">
-            <p className="tv__roster-title">
-              Players joined: <span className="tv__count">{players.length}</span>
-            </p>
-            {players.length === 0 ? (
-              <p className="tv__empty">Waiting for the first player…</p>
-            ) : (
-              <ul className="roster">
-                {players.map((player) => (
-                  <li
-                    key={player.id}
-                    className={`roster__item${player.connected ? '' : ' roster__item--offline'}`}
-                  >
-                    <span className="roster__name">{player.name}</span>
-                    {player.role === 'SPECIAL' && <span className="roster__tag">special</span>}
-                    {!player.connected && (
-                      <span className="roster__tag roster__tag--offline">offline</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </section>
-      ) : (
-        <DisplayViewPanel view={displayView} />
-      )}
+          </section>
+        ) : (
+          <DisplayViewPanel key={viewKey} view={displayView} />
+        )}
+      </div>
     </main>
   );
 }

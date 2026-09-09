@@ -29,7 +29,7 @@
     {
       "id": "would-judy-approve",
       "type": "would-approve",
-      "name": "Would Judy Approve?",
+      "name": "Judy Would Like a Word",
       "scoring": {
         "predictSpecial": 100,
         "manualStep": 100
@@ -61,7 +61,7 @@
     {
       "id": "what-would-judy-do",
       "type": "what-would-judy-do",
-      "name": "What Would Judy Do?",
+      "name": "WWJD",
       "scoring": {
         "predictSpecial": 100,
         "manualStep": 100
@@ -99,7 +99,7 @@
     {
       "id": "judys-rotten-tomatoes",
       "type": "rotten-tomatoes",
-      "name": "Judy's Rotten Tomatoes",
+      "name": "Judy's Hot Takes",
       "scoring": {
         "exact": 500,
         "within5": 400,
@@ -143,18 +143,31 @@
       ]
     },
     {
-      "id": "draw-this",
-      "type": "draw-this",
-      "name": "Draw This",
+      "id": "quiplash",
+      "type": "quiplash",
+      "name": "Quiplash",
       "scoring": {
         "specialPick": 150
       },
       "rounds": [
         {
-          "prompt": "Design Judy's dream living room if it were inside Hogwarts."
+          "prompt": "Judy's ultimate tactic to convince Roni to finally buy a dishwasher"
+        }
+      ]
+    },
+    {
+      "id": "draw-this",
+      "type": "draw-this",
+      "name": "Please Don't Judge My Art",
+      "scoring": {
+        "specialPick": 150
+      },
+      "rounds": [
+        {
+          "prompt": "Ingredients for Judy's dream cocktail"
         },
         {
-          "prompt": "Draw Judy's face the moment someone says \"one more drink\"."
+          "prompt": "Draw Judy's face the moment someone says \"could we see one more option?\"."
         }
       ]
     }

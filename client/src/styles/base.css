@@ -1,0 +1,116 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--t-base);
+  line-height: var(--lh-body);
+  color: var(--c-paper);
+  background-color: var(--c-ink-000);
+  /* A single warm wash from the top; no rainbow gradients anywhere else. */
+  background-image: radial-gradient(120% 80% at 50% -20%, #241a15 0%, var(--c-ink-000) 62%);
+  background-attachment: fixed;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: var(--lh-tight);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+p,
+ul,
+ol,
+dl,
+figure {
+  margin: 0;
+}
+
+ul,
+ol {
+  list-style: none;
+  padding: 0;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-brass);
+  outline-offset: 3px;
+}
+
+/* ---------- screen shells ---------- */
+
+.screen {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Small caps label used above headings on every surface. */
+.eyebrow {
+  font-size: var(--t-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--track-wide);
+  font-weight: 600;
+  color: var(--c-paper-faint);
+  margin: 0;
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: var(--track-mid);
+  margin: 0;
+}
+
+.wordmark__dot {
+  color: var(--c-clay);
+}
+
+.numeral {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Entrance used when the server moves everyone to a new view. Purely
+   decorative: the DOM is already correct before the animation starts. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}

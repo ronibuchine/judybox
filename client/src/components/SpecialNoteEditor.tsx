@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { SpecialNoteInput } from '@judybox/shared';
+import { Button } from './ui';
 
 /**
  * The special player's comment box.
@@ -37,7 +38,7 @@ export function SpecialNoteEditor({
         <p className="note__label">{note.label}</p>
         <p className="note__hint">{note.hint}</p>
         {note.value ? (
-          <p className="note__saved-text">&ldquo;{note.value}&rdquo;</p>
+          <p className="note__saved">&ldquo;{note.value}&rdquo;</p>
         ) : (
           <p className="note__hint">You didn&rsquo;t add one this round.</p>
         )}
@@ -53,20 +54,19 @@ export function SpecialNoteEditor({
       <p className="note__hint">{note.hint}</p>
       <textarea
         id="special-note"
-        className="note__input"
+        className="field field--area"
         value={draft}
         maxLength={note.maxLength}
         rows={3}
         placeholder={note.placeholder}
         onChange={(event) => setDraft(event.target.value)}
       />
-      <div className="note__footer">
+      <div className="note__foot">
         <span className={`note__count${remaining <= 20 ? ' note__count--low' : ''}`}>
           {remaining} left
         </span>
-        <button
-          type="button"
-          className="button button--quiet note__save"
+        <Button
+          size="sm"
           disabled={!hasChanges}
           onClick={() => {
             savedValueRef.current = trimmed;
@@ -74,7 +74,7 @@ export function SpecialNoteEditor({
           }}
         >
           {!hasChanges && savedValue !== '' ? 'Saved' : 'Save comment'}
-        </button>
+        </Button>
       </div>
       {!hasChanges && savedValue !== '' && (
         <p className="note__status">Ready. This appears on the TV at the reveal.</p>

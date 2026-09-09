@@ -1,242 +1,336 @@
-import { useEffect, useRef } from 'react';
-import { DRAWING_GRID, type DisplayView, type DrawStroke } from '@judybox/shared';
+import { useEffect, useRef, type ReactNode } from 'react';
+import { DRAWING_GRID, type DisplayView, type DrawStroke, type ViewOption } from '@judybox/shared';
 import { Leaderboard } from './Leaderboard';
+import { Media, Meter, Paged, Stage, optionKey } from './ui';
+
+/** How many gallery entries the TV shows at once before it rotates. */
+const CAPTIONS_PER_PAGE = 6;
+const DRAWINGS_PER_PAGE = 8;
+const ROWS_PER_PAGE = 8;
+/** The TV never scrolls, so the standings show a podium and two runners-up. */
+const PODIUM = 3;
+const RUNNERS_UP = 2;
 
 /** Renders whatever the server says the TV should show. No local game logic. */
 export function DisplayViewPanel({ view }: { view: DisplayView }): JSX.Element {
   switch (view.kind) {
     case 'game_select':
       return (
-        <div className="stage">
-          <p className="stage__kicker">Up next</p>
-          <ul className="stage__list">
-            {view.games.map((game) => (
-              <li key={game.id}>{game.label}</li>
+        <Stage kicker="Tonight's line-up" title="Pick a game">
+          <ul className="rows">
+            {view.games.map((game, index) => (
+              <li key={game.id} className="rows__row" style={rowDelay(index)}>
+                <span>{game.label}</span>
+                <span className="rows__value numeral">{String(index + 1).padStart(2, '0')}</span>
+              </li>
             ))}
           </ul>
-        </div>
+        </Stage>
       );
 
     case 'game_intro':
       return (
-        <div className="stage">
-          <p className="stage__kicker">Get ready</p>
-          <h2 className="stage__title">{view.gameName}</h2>
-          <p className="stage__sub">{view.roundCount} rounds</p>
-        </div>
+        <Stage
+          kicker="Up next"
+          title={view.gameName}
+          sub={`${view.roundCount} ${view.roundCount === 1 ? 'round' : 'rounds'}`}
+        />
       );
 
     case 'round_intro':
       return (
-        <div className="stage">
-          <p className="stage__kicker">
-            Round {view.roundNumber} of {view.roundCount}
-          </p>
-          <h2 className="stage__title">{view.prompt}</h2>
-          {view.meta && <p className="stage__sub">{view.meta}</p>}
-          {view.imageUrl && <RoundImage src={view.imageUrl} alt={view.prompt} />}
-        </div>
+        <Stage kicker={`Round ${view.roundNumber} of ${view.roundCount}`}>
+          <Split media={view.imageUrl ? <RoundImage src={view.imageUrl} alt={view.prompt} /> : null}>
+            <h2 className="stage__title">{view.prompt}</h2>
+            {view.meta && <p className="stage__sub">{view.meta}</p>}
+          </Split>
+        </Stage>
       );
 
     case 'question':
       return (
-        <div className="stage">
-          <h2 className="stage__title">{view.prompt}</h2>
-          {view.imageUrl && <RoundImage src={view.imageUrl} alt={view.prompt} />}
-          {view.scale ? (
-            <p className="stage__scale">{view.scale.label}</p>
-          ) : (
-            <ul className="options options--tv">
-              {view.options.map((option) => (
-                <li key={option.id} className="options__item">
-                  {option.label}
-                </li>
-              ))}
-            </ul>
-          )}
-          <p className="stage__sub">
-            {view.locked ? 'Answers locked' : `${view.answered} / ${view.expected} answered`}
-            {view.specialStatus && (
-              <span className="stage__special">
-                {' · '}
-                {view.specialStatus.name}{' '}
-                {view.specialStatus.answered ? 'has answered' : 'is deciding…'}
-              </span>
+        <Stage>
+          <Split media={view.imageUrl ? <RoundImage src={view.imageUrl} alt={view.prompt} /> : null}>
+            <h2 className={view.imageUrl ? 'stage__title stage__title--sm' : 'stage__title'}>
+              {view.prompt}
+            </h2>
+            {view.scale ? (
+              <p className="stage__scale">{view.scale.label}</p>
+            ) : (
+              <OptionList options={view.options} />
             )}
-          </p>
-        </div>
+            <Meter
+              tv
+              value={view.answered}
+              max={view.expected}
+              label={view.locked ? 'Answers locked' : `${view.answered} of ${view.expected} in`}
+              aside={
+                view.specialStatus && (
+                  <span className={view.specialStatus.answered ? 'rows__value--hit' : ''}>
+                    {view.specialStatus.name} {view.specialStatus.answered ? 'is ready' : 'is deciding…'}
+                  </span>
+                )
+              }
+            />
+          </Split>
+        </Stage>
       );
 
     case 'reveal': {
       const total = Object.values(view.tallies).reduce((sum, count) => sum + count, 0);
       const revealed = view.options.find((option) => option.id === view.correctOptionId);
       return (
-        <div className="stage">
-          <h2 className="stage__title">{view.prompt}</h2>
-          {view.imageUrl && <RoundImage src={view.imageUrl} alt={view.prompt} />}
-          {view.revealLabel && revealed && (
-            <p className="reveal__answer">
-              <span className="reveal__label">{view.revealLabel}</span>
-              <span className="reveal__value">{revealed.label}</span>
-            </p>
-          )}
-          {view.note && <p className="reveal__note">&ldquo;{view.note}&rdquo;</p>}
-          <ul className="options options--tv">
-            {view.options.map((option) => {
-              const count = view.tallies[option.id] ?? 0;
-              const isCorrect = view.correctOptionId === option.id;
-              return (
-                <li
-                  key={option.id}
-                  className={`options__item${isCorrect ? ' options__item--correct' : ''}`}
-                >
-                  <span>{option.label}</span>
-                  <span className="options__count">
-                    {count}
-                    {total > 0 ? ` / ${total}` : ''}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+        <Stage>
+          <Split media={view.imageUrl ? <RoundImage src={view.imageUrl} alt={view.prompt} /> : null}>
+            <h2 className="stage__title stage__title--sm">{view.prompt}</h2>
+            {view.revealLabel && revealed && (
+              <p className="reveal">
+                <span className="reveal__label">{view.revealLabel}</span>
+                <span className="reveal__value">{revealed.label}</span>
+              </p>
+            )}
+            {view.note && <p className="stage__quote">&ldquo;{view.note}&rdquo;</p>}
+            <OptionList
+              options={view.options}
+              tallies={view.tallies}
+              total={total}
+              correctOptionId={view.correctOptionId}
+            />
+          </Split>
+        </Stage>
       );
     }
 
     case 'rating_reveal':
       return (
-        <div className="stage">
-          <h2 className="stage__title">{view.prompt}</h2>
-          {view.meta && <p className="stage__sub">{view.meta}</p>}
-          {view.imageUrl && <RoundImage src={view.imageUrl} alt={view.prompt} />}
-          <p className="reveal__answer">
-            <span className="reveal__label">{view.revealLabel}</span>
-            <span className="reveal__value">
-              {view.actualScore === null ? 'no score' : view.actualScore}
-            </span>
-          </p>
-          {view.note && <p className="reveal__note">&ldquo;{view.note}&rdquo;</p>}
-          <ul className="stage__list">
-            {view.guesses.map((guess) => (
-              <li key={guess.playerName}>
-                <span>{guess.playerName}</span>
-                <span className="stage__value">
-                  {guess.score}
-                  {guess.distance === null
-                    ? ''
-                    : guess.distance === 0
-                      ? ' ✓'
-                      : ` (off by ${guess.distance})`}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <Stage>
+          <Split media={view.imageUrl ? <RoundImage src={view.imageUrl} alt={view.prompt} /> : null}>
+            <h2 className="stage__title stage__title--sm">{view.prompt}</h2>
+            {view.meta && <p className="stage__sub">{view.meta}</p>}
+            <p className="reveal">
+              <span className="reveal__label">{view.revealLabel}</span>
+              <span
+                className={`stage__numeral${view.actualScore === null ? ' stage__numeral--muted' : ''}`}
+              >
+                {view.actualScore === null ? 'no score' : view.actualScore}
+              </span>
+            </p>
+            {view.note && <p className="stage__quote">&ldquo;{view.note}&rdquo;</p>}
+            <Paged items={view.guesses} perPage={ROWS_PER_PAGE}>
+              {(entries) => (
+                <ul className="rows">
+                  {entries.map(({ item: guess, index }) => (
+                    <li key={guess.playerName} className="rows__row" style={rowDelay(index)}>
+                      <span>{guess.playerName}</span>
+                      <span
+                        className={`rows__value${guess.distance === 0 ? ' rows__value--hit' : ''} numeral`}
+                      >
+                        {guess.score}
+                        {guess.distance === null
+                          ? ''
+                          : guess.distance === 0
+                            ? ' · exact'
+                            : ` · off by ${guess.distance}`}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Paged>
+          </Split>
+        </Stage>
       );
 
     case 'results':
       return (
-        <div className="stage">
-          <p className="stage__kicker">{view.prompt}</p>
-          <ul className="stage__list">
-            {view.rows.map((row) => (
-              <li key={row.playerName}>
-                <span>{row.playerName}</span>
-                <span className="stage__value">
-                  {row.choiceLabel ?? 'no answer'}
-                  {row.correct === true ? ' ✓' : row.correct === false ? ' ✗' : ''}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <Stage kicker="How the room answered" title={view.prompt} titleSize="sm">
+          <Paged items={view.rows} perPage={ROWS_PER_PAGE}>
+            {(entries) => (
+              <ul className="rows">
+                {entries.map(({ item: row, index }) => (
+                  <li key={row.playerName} className="rows__row" style={rowDelay(index)}>
+                    <span>{row.playerName}</span>
+                    <span
+                      className={`rows__value${
+                        row.correct === true
+                          ? ' rows__value--hit'
+                          : row.choiceLabel === null
+                            ? ' rows__value--miss'
+                            : ''
+                      }`}
+                    >
+                      {row.choiceLabel ?? 'no answer'}
+                      {row.correct === true ? ' ✓' : row.correct === false ? ' ✗' : ''}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Paged>
+        </Stage>
       );
 
     case 'caption_gallery':
       return (
-        <div className="stage">
-          <h2 className="stage__title">{view.prompt}</h2>
-          {view.imageUrl && <RoundImage src={view.imageUrl} alt={view.prompt} />}
-          {!view.revealed && (
-            <p className="stage__sub">
-              {view.judyDeciding ? 'Judy is choosing a winner…' : 'Judy has picked. Waiting on the host.'}
-            </p>
-          )}
-          <ul className="stage__list stage__list--gallery">
-            {view.entries.map((entry, index) => (
-              <li
-                key={entry.id}
-                className={entry.isWinner ? 'stage__list-item--winner' : undefined}
-              >
-                <span className="gallery__caption">
-                  {view.revealed ? (entry.playerName ?? '?') : `Entry ${index + 1}`}
-                  {entry.isWinner ? ' 🏆' : ''}
-                </span>
-                <span className="stage__value">{entry.text}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <Stage sub={view.revealed ? undefined : judgingLabel(view.judyDeciding)}>
+          <Split media={view.imageUrl ? <RoundImage src={view.imageUrl} alt={view.prompt} /> : null}>
+            <h2 className="stage__title stage__title--sm">{view.prompt}</h2>
+            <Paged
+              items={view.entries}
+              perPage={CAPTIONS_PER_PAGE}
+              focusIndex={winnerIndex(view.entries, view.revealed)}
+            >
+              {(entries) => (
+                <ul className="cards cards--paged">
+                  {entries.map(({ item: entry, index }) => (
+                    <li
+                      key={entry.id}
+                      className={`card-entry${entry.isWinner ? ' card-entry--winner' : ''}`}
+                      style={rowDelay(index)}
+                    >
+                      <p className="card-entry__text">&ldquo;{entry.text}&rdquo;</p>
+                      <p className="card-entry__by">
+                        {view.revealed ? (entry.playerName ?? 'Unknown') : `Entry ${index + 1}`}
+                        {entry.isWinner ? ' · winner' : ''}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Paged>
+          </Split>
+        </Stage>
       );
 
     case 'drawing_gallery':
       return (
-        <div className="stage">
-          <h2 className="stage__title">{view.prompt}</h2>
-          {!view.revealed && (
+        <Stage
+          kicker="Draw this"
+          title={view.prompt}
+          titleSize="sm"
+          sub={view.revealed ? undefined : judgingLabel(view.judyDeciding)}
+        >
+          <Paged
+            items={view.entries}
+            perPage={DRAWINGS_PER_PAGE}
+            focusIndex={winnerIndex(view.entries, view.revealed)}
+          >
+            {(entries) => (
+              <ul className="tiles">
+                {entries.map(({ item: entry, index }) => (
+                  <li
+                    key={entry.id}
+                    className={`tile${entry.isWinner ? ' tile--winner' : ''}`}
+                    style={rowDelay(index)}
+                  >
+                    <DrawingTile strokes={entry.strokes} />
+                    <p className="tile__by">
+                      {view.revealed ? (entry.playerName ?? 'Unknown') : `Entry ${index + 1}`}
+                      {entry.isWinner ? ' · winner' : ''}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Paged>
+        </Stage>
+      );
+
+    case 'leaderboard': {
+      const podium = view.rows.slice(0, PODIUM);
+      const runners = view.rows.slice(PODIUM, PODIUM + RUNNERS_UP);
+      const remaining = view.rows.length - podium.length - runners.length;
+      return (
+        <Stage kicker="Standings">
+          <Leaderboard rows={podium} variant="tv" />
+          {runners.length > 0 && <Leaderboard rows={runners} variant="runners" />}
+          {remaining > 0 && (
             <p className="stage__sub">
-              {view.judyDeciding ? 'Judy is choosing a winner…' : 'Judy has picked. Waiting on the host.'}
+              +{remaining} more {remaining === 1 ? 'player' : 'players'}
             </p>
           )}
-          <ul className="gallery gallery--drawings">
-            {view.entries.map((entry, index) => (
-              <li key={entry.id} className={entry.isWinner ? 'gallery__tile--winner' : undefined}>
-                <DrawingTile strokes={entry.strokes} />
-                <span className="gallery__caption">
-                  {view.revealed ? (entry.playerName ?? '?') : `Entry ${index + 1}`}
-                  {entry.isWinner ? ' 🏆' : ''}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        </Stage>
       );
-
-    case 'leaderboard':
-      return (
-        <div className="stage">
-          <p className="stage__kicker">Leaderboard</p>
-          <Leaderboard rows={view.rows} />
-        </div>
-      );
+    }
 
     case 'game_complete':
-      return (
-        <div className="stage">
-          <p className="stage__kicker">That&rsquo;s a wrap</p>
-          <h2 className="stage__title">{view.gameName}</h2>
-        </div>
-      );
+      return <Stage kicker="That’s a wrap" title={view.gameName} />;
 
     case 'lobby':
     default:
-      return <div className="stage" />;
+      return <Stage />;
   }
 }
 
-/** Falls back to a visible placeholder so a missing file is obvious, not blank. */
-function RoundImage({ src, alt }: { src: string; alt: string }): JSX.Element {
+function judgingLabel(deciding: boolean): string {
+  return deciding ? 'A winner is being chosen…' : 'The winner is locked in. Over to the host.';
+}
+
+/** Locks the pager onto the winning entry once names are out. */
+function winnerIndex(entries: readonly { isWinner?: boolean }[], revealed: boolean): number | null {
+  if (!revealed) return null;
+  const index = entries.findIndex((entry) => entry.isWinner);
+  return index === -1 ? null : index;
+}
+
+/** Bounded stagger so long lists still land quickly. */
+function rowDelay(index: number): { animationDelay: string } {
+  return { animationDelay: `${Math.min(index, 8) * 45}ms` };
+}
+
+/**
+ * Image-forward layout: when a round has a picture it leads on the left and
+ * the words sit beside it, instead of squeezing both into one column.
+ */
+function Split({ media, children }: { media: ReactNode; children: ReactNode }): JSX.Element {
+  if (!media) return <>{children}</>;
   return (
-    <img
-      className="stage__image"
-      src={src}
-      alt={alt}
-      onError={(event) => {
-        event.currentTarget.classList.add('stage__image--missing');
-        event.currentTarget.alt = 'Image missing';
-      }}
-    />
+    <div className="stage__split stage__split--media">
+      {media}
+      <div className="stage__aside">{children}</div>
+    </div>
   );
+}
+
+function OptionList({
+  options,
+  tallies,
+  total = 0,
+  correctOptionId = null,
+}: {
+  options: ViewOption[];
+  tallies?: Record<string, number>;
+  total?: number;
+  correctOptionId?: string | null;
+}): JSX.Element {
+  return (
+    <ul className={`tv-options${options.length > 3 ? ' tv-options--pair' : ''}`}>
+      {options.map((option, index) => {
+        const count = tallies?.[option.id] ?? 0;
+        const share = total > 0 ? Math.round((count / total) * 100) : 0;
+        return (
+          <li
+            key={option.id}
+            className={`tv-option${correctOptionId === option.id ? ' tv-option--correct' : ''}`}
+          >
+            {tallies && <span className="tv-option__fill" style={{ width: `${share}%` }} />}
+            <span className="tv-option__key">{optionKey(index)}</span>
+            <span className="tv-option__label">{option.label}</span>
+            {tallies && (
+              <span className="tv-option__count">
+                {count}
+                {total > 0 ? ` / ${total}` : ''}
+              </span>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function RoundImage({ src, alt }: { src: string; alt: string }): JSX.Element {
+  return <Media src={src} alt={alt} className="stage__media" />;
 }
 
 /** Replays a bounded stroke list onto a small canvas; same encoding as the phone's. */
@@ -248,13 +342,13 @@ function DrawingTile({ strokes }: { strokes: readonly DrawStroke[] }): JSX.Eleme
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#f7f3ec';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     for (const stroke of strokes) {
       if (stroke.points.length < 4) continue;
       ctx.globalCompositeOperation = stroke.erase ? 'destination-out' : 'source-over';
-      ctx.strokeStyle = '#1a1030';
-      ctx.lineWidth = stroke.size === 'thick' ? 8 : 3;
+      ctx.strokeStyle = '#241f1c';
+      ctx.lineWidth = stroke.size === 'thick' ? 9 : 3.5;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.beginPath();
@@ -269,5 +363,5 @@ function DrawingTile({ strokes }: { strokes: readonly DrawStroke[] }): JSX.Eleme
     ctx.globalCompositeOperation = 'source-over';
   }, [strokes]);
 
-  return <canvas ref={canvasRef} className="gallery__canvas" width={220} height={220} />;
+  return <canvas ref={canvasRef} className="tile__canvas" width={260} height={260} />;
 }

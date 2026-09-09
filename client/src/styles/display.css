@@ -1,0 +1,524 @@
+/* The TV. Read from four metres away: few elements, all of them large. */
+
+.screen--tv {
+  height: 100dvh;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.tv__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-5);
+  padding: clamp(0.75rem, 1.4vw, 1.5rem) clamp(1rem, 3vw, 3rem);
+  border-bottom: 1px solid var(--c-line);
+}
+
+.tv__brand {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+  min-width: 0;
+}
+
+.tv__brand .wordmark {
+  font-size: clamp(1.1rem, 1.6vw, 1.9rem);
+}
+
+.tv__party {
+  font-size: var(--tv-eyebrow);
+  text-transform: uppercase;
+  letter-spacing: var(--track-wide);
+  color: var(--c-paper-faint);
+  overflow-wrap: anywhere;
+}
+
+/* Current game and round, so nobody has to ask what is happening. */
+.tv__now {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-width: 0;
+}
+
+.tv__now-game {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 1.5vw, 1.75rem);
+  color: var(--c-paper);
+  overflow-wrap: anywhere;
+}
+
+.tv__now-round {
+  padding: 0.2em 0.7em;
+  border: 1px solid rgba(217, 132, 98, 0.45);
+  border-radius: var(--r-pill);
+  background: var(--c-clay-wash);
+  color: var(--c-clay);
+  font-size: var(--tv-eyebrow);
+  font-weight: 700;
+  letter-spacing: var(--track-mid);
+  white-space: nowrap;
+}
+
+.tv__main {
+  min-height: 0;
+  display: grid;
+  align-items: center;
+  padding: clamp(1rem, 2.5vw, 3rem) clamp(1rem, 3vw, 3.5rem);
+}
+
+/* ---------- stage ---------- */
+
+.stage {
+  width: 100%;
+  max-width: 108rem;
+  margin: 0 auto;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.75rem, 1.6vw, 1.75rem);
+  text-align: center;
+  animation: rise-in var(--dur-3) var(--ease-out) both;
+}
+
+.stage__kicker {
+  font-size: var(--tv-kicker);
+  text-transform: uppercase;
+  letter-spacing: var(--track-wide);
+  color: var(--c-clay);
+  font-weight: 600;
+}
+
+.stage__title {
+  font-size: var(--tv-title);
+  max-width: 20ch;
+  text-wrap: balance;
+}
+
+.stage__title--sm {
+  font-size: var(--tv-title-sm);
+  max-width: 26ch;
+}
+
+.stage__sub {
+  font-size: var(--tv-body);
+  color: var(--c-paper-muted);
+  max-width: 42ch;
+  text-wrap: balance;
+}
+
+.stage__body {
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.75rem, 1.4vw, 1.5rem);
+}
+
+.stage__footer {
+  width: min(100%, 44rem);
+}
+
+/* Image-forward rounds: the picture leads, the text sits beside it. */
+.stage__split {
+  width: 100%;
+  display: grid;
+  gap: clamp(1.25rem, 3vw, 3.5rem);
+  align-items: center;
+}
+
+@media (min-width: 64rem) {
+  .stage__split--media {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    text-align: left;
+  }
+
+  .stage__split--media .stage__title,
+  .stage__split--media .stage__sub {
+    max-width: none;
+  }
+}
+
+.stage__media {
+  width: 100%;
+  max-height: 62vh;
+  aspect-ratio: 4 / 3;
+}
+
+.stage__media img {
+  max-height: 62vh;
+}
+
+.stage__aside {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 1.4vw, 1.5rem);
+  min-width: 0;
+}
+
+.stage__numeral {
+  font-family: var(--font-display);
+  font-size: var(--tv-numeral);
+  line-height: 1;
+  color: var(--c-brass);
+  font-variant-numeric: tabular-nums;
+}
+
+.stage__numeral--muted {
+  color: var(--c-paper-faint);
+  font-size: var(--tv-title);
+}
+
+.stage__quote {
+  font-family: var(--font-display);
+  font-size: var(--tv-body);
+  font-style: italic;
+  color: var(--c-clay);
+  max-width: 40ch;
+  text-wrap: balance;
+}
+
+.stage__scale {
+  font-family: var(--font-display);
+  font-size: var(--tv-title-sm);
+  color: var(--c-brass);
+}
+
+/* ---------- reveal ---------- */
+
+.reveal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  padding: clamp(0.75rem, 1.5vw, 1.5rem) clamp(1.5rem, 3vw, 3rem);
+  border: 1px solid rgba(230, 192, 123, 0.4);
+  border-radius: var(--r-lg);
+  background: var(--c-brass-wash);
+  animation: rise-in var(--dur-3) var(--ease-out) both;
+}
+
+.reveal__label {
+  font-size: var(--tv-eyebrow);
+  text-transform: uppercase;
+  letter-spacing: var(--track-wide);
+  color: var(--c-paper-muted);
+}
+
+.reveal__value {
+  font-family: var(--font-display);
+  font-size: var(--tv-title-sm);
+  color: var(--c-brass);
+  text-wrap: balance;
+}
+
+/* ---------- TV answer options ---------- */
+
+.tv-options {
+  display: grid;
+  gap: clamp(0.5rem, 1vw, 1rem);
+  width: 100%;
+}
+
+@media (min-width: 64rem) {
+  .tv-options--pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.tv-option {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 1.2vw, 1.25rem);
+  padding: clamp(0.6rem, 1.1vw, 1.1rem) clamp(0.9rem, 1.5vw, 1.5rem);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-ink-100);
+  font-size: var(--tv-body);
+  text-align: left;
+  transition:
+    border-color var(--dur-2) var(--ease-out),
+    background-color var(--dur-2) var(--ease-out);
+}
+
+/* Share-of-vote fill behind the label at the reveal. */
+.tv-option__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--c-clay-wash);
+  transition: width var(--dur-3) var(--ease-out);
+}
+
+.tv-option__key,
+.tv-option__label,
+.tv-option__count {
+  position: relative;
+}
+
+.tv-option__key {
+  display: grid;
+  place-items: center;
+  width: 2em;
+  height: 2em;
+  flex: none;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-size: 0.8em;
+  color: var(--c-paper-muted);
+}
+
+.tv-option__label {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.tv-option__count {
+  font-variant-numeric: tabular-nums;
+  color: var(--c-paper-faint);
+  font-size: 0.85em;
+}
+
+.tv-option--correct {
+  border-color: var(--c-sage);
+  background: var(--c-sage-wash);
+}
+
+.tv-option--correct .tv-option__key {
+  border-color: var(--c-sage);
+  color: var(--c-sage);
+}
+
+.tv-option--correct .tv-option__fill {
+  background: var(--c-sage-wash);
+}
+
+/* ---------- list rows (results, guesses, game menu) ---------- */
+
+.rows {
+  width: min(100%, 52rem);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.rows__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-5);
+  padding: clamp(0.45rem, 0.9vw, 0.85rem) var(--s-2);
+  border-bottom: 1px solid var(--c-line);
+  font-size: var(--tv-body);
+  text-align: left;
+  animation: rise-in var(--dur-3) var(--ease-out) both;
+}
+
+.rows__row:last-child {
+  border-bottom: none;
+}
+
+.rows__value {
+  font-family: var(--font-display);
+  color: var(--c-brass);
+  white-space: nowrap;
+}
+
+.rows__value--miss {
+  color: var(--c-paper-faint);
+}
+
+.rows__value--hit {
+  color: var(--c-sage);
+}
+
+/* ---------- galleries ---------- */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: clamp(0.75rem, 1.2vw, 1.25rem);
+  width: 100%;
+}
+
+/* Paged galleries: fixed tracks so a page of two entries looks the same as
+   a page of six, and tile size is bounded by height so two rows always fit. */
+.cards--paged {
+  grid-template-columns: repeat(auto-fit, minmax(0, 22rem));
+  justify-content: center;
+}
+
+.card-entry {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: clamp(0.9rem, 1.4vw, 1.4rem);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-ink-100);
+  text-align: left;
+  animation: rise-in var(--dur-3) var(--ease-out) both;
+}
+
+.card-entry__text {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 1.7vw, 1.9rem);
+  line-height: var(--lh-snug);
+  text-wrap: balance;
+}
+
+.card-entry__by {
+  font-size: var(--tv-eyebrow);
+  text-transform: uppercase;
+  letter-spacing: var(--track-wide);
+  color: var(--c-paper-faint);
+}
+
+.card-entry--winner,
+.tile--winner {
+  border-color: var(--c-brass);
+  background: var(--c-brass-wash);
+}
+
+.card-entry--winner .card-entry__by,
+.tile--winner .tile__by {
+  color: var(--c-brass);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, clamp(8rem, 24vh, 20rem));
+  justify-content: center;
+  gap: clamp(0.75rem, 1.2vw, 1.25rem);
+  width: 100%;
+}
+
+/* ---------- pager ---------- */
+
+.paged {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-4);
+  width: 100%;
+}
+
+.paged__page {
+  width: 100%;
+  animation: fade-in var(--dur-3) var(--ease-out) both;
+}
+
+.paged__dots {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.paged__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--c-line-strong);
+  transition: background-color var(--dur-2) var(--ease-out);
+}
+
+.paged__dot--on {
+  background: var(--c-clay);
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-3);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-ink-100);
+  animation: rise-in var(--dur-3) var(--ease-out) both;
+}
+
+.tile__canvas {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--r-sm);
+  background: var(--c-canvas);
+}
+
+.tile__by {
+  font-size: var(--tv-eyebrow);
+  text-transform: uppercase;
+  letter-spacing: var(--track-wide);
+  color: var(--c-paper-faint);
+  text-align: center;
+}
+
+/* ---------- lobby ---------- */
+
+.lobby {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 4.5rem);
+  align-items: center;
+  width: 100%;
+  max-width: 92rem;
+  margin: 0 auto;
+}
+
+@media (min-width: 60rem) {
+  .lobby {
+    grid-template-columns: auto minmax(20rem, 36rem);
+    justify-content: center;
+  }
+}
+
+.lobby__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  min-width: 0;
+}
+
+.lobby__title {
+  font-size: var(--tv-title);
+  text-wrap: balance;
+}
+
+.lobby__count {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+}
+
+.lobby__count-value {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 4vw, 4rem);
+  line-height: 1;
+  color: var(--c-brass);
+  font-variant-numeric: tabular-nums;
+}
+
+.lobby__count-label {
+  font-size: var(--tv-kicker);
+  text-transform: uppercase;
+  letter-spacing: var(--track-wide);
+  color: var(--c-paper-faint);
+}
+
+.lobby__roster {
+  max-height: 46vh;
+  overflow-y: auto;
+  padding-right: var(--s-2);
+}
+
+.lobby__empty {
+  font-size: var(--tv-body);
+  color: var(--c-paper-faint);
+}

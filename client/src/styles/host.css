@@ -1,0 +1,239 @@
+/* The host laptop. Operational, dense-but-calm, no surprises mid-party. */
+
+.screen--host {
+  max-width: var(--host-max);
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--s-4) var(--s-4) var(--s-8);
+  gap: var(--s-4);
+}
+
+.host__bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: var(--s-3) 0;
+  margin-bottom: var(--s-2);
+  background: rgba(13, 11, 10, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--c-line);
+}
+
+.host__bar .wordmark {
+  font-size: var(--t-xl);
+}
+
+.host__bar-tag {
+  font-size: var(--t-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--track-wide);
+  color: var(--c-paper-faint);
+}
+
+/* At-a-glance strip: everything the host needs before touching a button. */
+.host__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 1px;
+  background: var(--c-line);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  padding: var(--s-3) var(--s-4);
+  background: var(--c-ink-100);
+  min-width: 0;
+}
+
+.stat__label {
+  font-size: var(--t-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--track-wide);
+  color: var(--c-paper-faint);
+}
+
+.stat__value {
+  font-family: var(--font-display);
+  font-size: var(--t-xl);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.stat__value--numeric {
+  font-variant-numeric: tabular-nums;
+}
+
+.stat__value--phase {
+  font-family: var(--font-mono);
+  font-size: var(--t-base);
+  color: var(--c-clay);
+  letter-spacing: 0.02em;
+}
+
+.stat__value--muted {
+  color: var(--c-paper-faint);
+}
+
+.stat__value--ok {
+  color: var(--c-sage);
+}
+
+.stat__value--wait {
+  color: var(--c-brass);
+}
+
+.host__grid {
+  display: grid;
+  gap: var(--s-4);
+  align-items: start;
+}
+
+@media (min-width: 60rem) {
+  .host__grid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  }
+}
+
+.host__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  min-width: 0;
+}
+
+/* Progression controls: one obvious next step, then quieter alternatives. */
+.host__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+}
+
+.host__actions .btn {
+  flex: 1 1 12rem;
+}
+
+/* The "Careful" row stays small so five red buttons never shout. */
+.host__actions .btn--sm {
+  flex: 0 1 auto;
+}
+
+.host__actions--primary .btn {
+  flex: 1 1 100%;
+}
+
+.host__games {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--s-3);
+}
+
+.host__divider {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin: var(--s-4) 0 var(--s-3);
+  font-size: var(--t-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--track-wide);
+  color: var(--c-paper-faint);
+}
+
+.host__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--c-line);
+}
+
+/* Inline confirm keeps a misclick from restarting a game mid-party. */
+.confirm {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  flex: 1 1 16rem;
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid var(--c-rust);
+  border-radius: var(--r-sm);
+  background: var(--c-rust-wash);
+}
+
+.confirm__text {
+  flex: 1;
+  font-size: var(--t-sm);
+  color: var(--c-paper);
+}
+
+.host__hint {
+  font-size: var(--t-sm);
+  color: var(--c-paper-faint);
+}
+
+.host__hint code {
+  font-family: var(--font-mono);
+  color: var(--c-paper-muted);
+  overflow-wrap: anywhere;
+}
+
+.host__alert {
+  margin-top: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid rgba(204, 98, 80, 0.45);
+  border-radius: var(--r-sm);
+  background: var(--c-rust-wash);
+  color: var(--c-paper);
+  font-size: var(--t-sm);
+}
+
+.host__alert ul {
+  margin-top: var(--s-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  color: var(--c-paper-muted);
+}
+
+.host__facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--s-2) var(--s-5);
+  font-size: var(--t-sm);
+}
+
+.host__facts dt {
+  color: var(--c-paper-faint);
+}
+
+.host__facts dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  overflow-wrap: anywhere;
+}
+
+.host__awards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+}
+
+.award {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: var(--t-sm);
+}
+
+.award__name {
+  overflow-wrap: anywhere;
+  color: var(--c-paper-muted);
+}

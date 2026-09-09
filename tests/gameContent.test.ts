@@ -312,6 +312,26 @@ describe('caption-this content', () => {
   });
 });
 
+describe('quiplash content', () => {
+  const ROUND = { prompt: "Judy's ultimate tactic to convince Roni to finally buy a dishwasher" };
+
+  // Same mechanic as Caption This, so it reuses parseCaptionRound outright.
+  it('parses through a full pack using the caption-this parser', () => {
+    const parsed = parsePartyPack(
+      pack([{ id: 'g', name: 'Quiplash', type: 'quiplash', rounds: [ROUND] }]),
+      'p',
+      SOURCE,
+    );
+    expect(parsed.games[0]?.roundCount).toBe(1);
+  });
+
+  it.each(['winner', 'judyPick'])('refuses a pre-set %s', (key) => {
+    expect(() => parseCaptionRound({ ...ROUND, [key]: 'p1' }, SOURCE, context())).toThrow(
+      /picks one live/,
+    );
+  });
+});
+
 describe('draw-this content', () => {
   const ROUND = { prompt: "Design Judy's dream living room inside Hogwarts." };
 
