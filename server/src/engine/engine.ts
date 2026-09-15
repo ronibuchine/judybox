@@ -174,7 +174,9 @@ export class GameEngine {
       const target = rule.target(context);
       // Hide actions leading into a phase this game does not use.
       if (this.game && !this.game.phases.includes(target) && target !== 'GAME_SELECT') {
-        if (target !== 'LOBBY' && target !== 'GAME_COMPLETE') return false;
+        if (target !== 'LOBBY' && target !== 'GAME_COMPLETE' && target !== 'PARTY_COMPLETE') {
+          return false;
+        }
       }
       return true;
     }).map((rule) => ({
@@ -229,6 +231,9 @@ export class GameEngine {
       case 'RETURN_TO_GAME_SELECT':
         this.game = action === 'RETURN_TO_LOBBY' ? null : this.game;
         this.roundIndex = 0;
+        this.clearRound();
+        break;
+      case 'END_PARTY':
         this.clearRound();
         break;
       default:
@@ -296,11 +301,13 @@ export class GameEngine {
     if (this.phase === 'LOBBY') return { kind: 'lobby' };
     if (this.phase === 'GAME_SELECT') return { kind: 'game_select', games: this.gameOptions() };
     if (this.phase === 'LEADERBOARD') return this.leaderboardView(players);
+    if (this.phase === 'PARTY_COMPLETE') return this.partyCompleteView(players);
     if (!this.game) return { kind: 'lobby' };
     return this.game.displayView(this.roundContext(players));
   }
 
   playerView(player: PublicPlayer, players: readonly PublicPlayer[]): PlayerView {
+    if (this.phase === 'PARTY_COMPLETE') return this.partyCompletePlayerView(player, players);
     if (this.phase === 'LOBBY' || this.phase === 'GAME_SELECT' || !this.game) {
       return { kind: 'idle', message: 'Waiting for the host to start a game.' };
     }
@@ -315,6 +322,39 @@ export class GameEngine {
 
   private leaderboardView(players: readonly PublicPlayer[]): DisplayView {
     return { kind: 'leaderboard', rows: this.scoreboard.standings(players) };
+  }
+
+  /** The real leaderboard, minus the special player: she isn't a competitor. */
+  private partyCompleteView(players: readonly PublicPlayer[]): DisplayView {
+    const ranked = players.filter((player) => player.role !== 'SPECIAL');
+    return {
+      kind: 'party_complete',
+      rows: this.scoreboard.standings(ranked),
+      specialPlayerName: this.options.specialPlayerName,
+    };
+  }
+
+  private partyCompletePlayerView(
+    player: PublicPlayer,
+    players: readonly PublicPlayer[],
+  ): PlayerView {
+    if (player.role === 'SPECIAL') {
+      return {
+        kind: 'party_complete',
+        special: true,
+        standing: null,
+        message: "You didn't need the points. You were the prize.",
+      };
+    }
+    const standing = this.scoreboard.standingFor(player.id, players);
+    return {
+      kind: 'party_complete',
+      special: false,
+      standing,
+      message: standing
+        ? `Thanks for playing! You finished #${standing.rank} of ${standing.totalPlayers}.`
+        : 'Thanks for playing!',
+    };
   }
 
   private gameOptions(): ViewOption[] {

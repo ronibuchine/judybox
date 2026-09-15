@@ -1,4 +1,5 @@
 import type { EnginePhase, HostAction } from '@judybox/shared';
+import { ENGINE_PHASES } from '@judybox/shared';
 
 export interface TransitionContext {
   phase: EnginePhase;
@@ -37,6 +38,11 @@ const ROUND_ACTIVE_PHASES: readonly EnginePhase[] = [
   'RESULTS',
   'LEADERBOARD',
 ];
+
+/** Every phase except the finale itself: the host can end the party from anywhere. */
+const ANY_PHASE_BUT_FINALE: readonly EnginePhase[] = ENGINE_PHASES.filter(
+  (phase) => phase !== 'PARTY_COMPLETE',
+);
 
 /** Whether another round exists after the current one. */
 function hasNextRound({ roundIndex, roundCount }: TransitionContext): boolean {
@@ -126,17 +132,25 @@ export const TRANSITION_RULES: readonly TransitionRule[] = [
   },
   {
     action: 'RETURN_TO_GAME_SELECT',
-    from: IN_GAME_PHASES,
+    from: [...IN_GAME_PHASES, 'PARTY_COMPLETE'],
     label: 'Back to game select',
     danger: true,
     target: () => 'GAME_SELECT',
   },
   {
     action: 'RETURN_TO_LOBBY',
-    from: [...IN_GAME_PHASES, 'GAME_SELECT'],
+    from: [...IN_GAME_PHASES, 'GAME_SELECT', 'PARTY_COMPLETE'],
     label: 'Return to lobby',
     danger: true,
     target: () => 'LOBBY',
+  },
+  {
+    // Not `danger`: this is a deliberate, happy action, not a mistake to guard
+    // against. The host UI gives it its own gold treatment instead.
+    action: 'END_PARTY',
+    from: ANY_PHASE_BUT_FINALE,
+    label: 'End the party',
+    target: () => 'PARTY_COMPLETE',
   },
 ];
 

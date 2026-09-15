@@ -31,8 +31,9 @@ export function HostScreen(): JSX.Element {
   const specialState = describeSpecial(special, displayView);
   const actions = engine?.availableActions ?? [];
   const showGameButtons = engine?.phase === 'GAME_SELECT' && engine.games.length > 0;
+  const finaleAction = actions.find((action) => action.action === 'END_PARTY');
   const usable = actions.filter(
-    (action) => !(action.action === 'START_GAME' && showGameButtons),
+    (action) => !(action.action === 'START_GAME' && showGameButtons) && action.action !== 'END_PARTY',
   );
   const progression = usable.filter((action) => !action.danger);
   const dangerous = usable.filter((action) => action.danger);
@@ -154,6 +155,26 @@ export function HostScreen(): JSX.Element {
             )}
             {notice && <p className="host__alert">{notice}</p>}
           </Panel>
+
+          {finaleAction && (
+            <Panel title="Finale">
+              {confirming === finaleAction.action ? (
+                <div className="confirm confirm--special">
+                  <span className="confirm__text">{finaleAction.label}?</span>
+                  <Button variant="special" size="sm" onClick={() => run(finaleAction.action)}>
+                    Yes
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => setConfirming(null)}>
+                    No
+                  </Button>
+                </div>
+              ) : (
+                <Button variant="special" block onClick={() => setConfirming(finaleAction.action)}>
+                  {finaleAction.label}
+                </Button>
+              )}
+            </Panel>
+          )}
 
           <Panel title="Scores">
             {leaderboard.length === 0 ? (

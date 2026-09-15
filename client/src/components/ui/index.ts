@@ -1,6 +1,7 @@
 export { AnswerOption, optionKey } from './AnswerOption';
 export { Badge } from './Badge';
 export { Button } from './Button';
+export { Confetti } from './Confetti';
 export { Media } from './Media';
 export { Meter } from './Meter';
 export { Paged } from './Paged';

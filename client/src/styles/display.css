@@ -217,6 +217,56 @@
   text-wrap: balance;
 }
 
+/* ---------- finale ---------- */
+
+.finale {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  width: 100%;
+  max-width: 64rem;
+}
+
+.finale__board {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-4);
+  width: 100%;
+}
+
+/* Settles in first; the champion line follows a beat later via animation-delay. */
+.finale__champion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  padding: clamp(1rem, 2vw, 2rem) clamp(2rem, 4vw, 4rem);
+  border: 1px solid rgba(230, 192, 123, 0.5);
+  border-radius: var(--r-lg);
+  background: var(--c-brass-wash);
+  box-shadow: var(--shadow-lg);
+  animation: rise-in var(--dur-3) var(--ease-out) 900ms both;
+}
+
+.finale__champion-label {
+  font-size: var(--tv-kicker);
+  color: var(--c-paper);
+  text-wrap: balance;
+}
+
+.finale__champion-label strong {
+  color: var(--c-brass);
+}
+
+.finale__infinity {
+  font-family: var(--font-display);
+  font-size: var(--tv-numeral);
+  line-height: 1;
+  color: var(--c-brass);
+}
+
 /* ---------- TV answer options ---------- */
 
 .tv-options {

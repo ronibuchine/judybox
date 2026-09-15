@@ -172,6 +172,12 @@
   color: var(--c-paper);
 }
 
+/* Same confirm shape, gold instead of rust: a happy action, not a risky one. */
+.confirm--special {
+  border-color: var(--c-brass);
+  background: var(--c-brass-wash);
+}
+
 .host__hint {
   font-size: var(--t-sm);
   color: var(--c-paper-faint);

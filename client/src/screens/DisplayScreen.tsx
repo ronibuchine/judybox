@@ -11,7 +11,8 @@ export function DisplayScreen(): JSX.Element {
 
   const players = session?.players ?? [];
   const inLobby = !displayView || displayView.kind === 'lobby';
-  const showRound = Boolean(engine && engine.roundCount > 0 && engine.roundNumber > 0);
+  const finale = displayView?.kind === 'party_complete';
+  const showRound = Boolean(!finale && engine && engine.roundCount > 0 && engine.roundNumber > 0);
   // Re-keying replays the entrance animation when the server moves everyone on.
   const viewKey = [
     displayView?.kind ?? 'lobby',
@@ -30,7 +31,7 @@ export function DisplayScreen(): JSX.Element {
           {!inLobby && data?.partyName && <p className="tv__party">{data.partyName}</p>}
         </div>
         <div className="tv__now">
-          {engine?.gameName && <span className="tv__now-game">{engine.gameName}</span>}
+          {!finale && engine?.gameName && <span className="tv__now-game">{engine.gameName}</span>}
           {showRound && engine && (
             <span className="tv__now-round">
               Round {engine.roundNumber} / {engine.roundCount}

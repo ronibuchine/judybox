@@ -18,7 +18,7 @@ import {
 } from '@judybox/shared';
 import { StatusBadge } from '../components/StatusBadge';
 import { SpecialNoteEditor } from '../components/SpecialNoteEditor';
-import { AnswerOption, Badge, Button, Media, WaitingState } from '../components/ui';
+import { AnswerOption, Badge, Button, Confetti, Media, WaitingState } from '../components/ui';
 import { useJudyBox } from '../net/useJudyBox';
 
 /** The phone surface: join with a name, then follow the server's view. */
@@ -318,6 +318,33 @@ function PlayPanel({
         <p className="play__prompt">{view.prompt}</p>
         <JudgePanel view={view} onPick={onPick} />
         {notice && <p className="play__error">{notice}</p>}
+      </section>
+    );
+  }
+
+  if (view.kind === 'party_complete') {
+    return (
+      <section className="play play--center">
+        <Confetti density="subtle" />
+        {view.special ? (
+          <div className="special-card">
+            <div className="special-card__head">
+              <Badge tone="special">Guest of honour</Badge>
+              <span className="special-card__rule" />
+            </div>
+            <p className="enter__title">{view.message}</p>
+          </div>
+        ) : (
+          <>
+            <p className="enter__title">{view.message}</p>
+            {view.standing && (
+              <p className="play__hint">
+                {view.standing.score.toLocaleString('en-US')} points, rank {view.standing.rank} of{' '}
+                {view.standing.totalPlayers}.
+              </p>
+            )}
+          </>
+        )}
       </section>
     );
   }

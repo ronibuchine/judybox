@@ -62,8 +62,11 @@ describe('engine starting state', () => {
     expect(engine.snapshot(PLAYERS).gameName).toBeNull();
   });
 
-  it('offers only game selection from the lobby', () => {
-    expect(engine.availableActions().map((a) => a.action)).toEqual(['OPEN_GAME_SELECT']);
+  it('offers game selection and ending the party from the lobby', () => {
+    expect(engine.availableActions().map((a) => a.action)).toEqual([
+      'OPEN_GAME_SELECT',
+      'END_PARTY',
+    ]);
   });
 });
 
@@ -432,3 +435,75 @@ describe('views', () => {
     expect(view.locked).toBe(false);
   });
 });
+
+describe('ending the party', () => {
+  it('is available from the lobby, with nothing started', () => {
+    expect(engine.availableActions().map((a) => a.action)).toContain('END_PARTY');
+    run('END_PARTY');
+    expect(engine.currentPhase()).toBe('PARTY_COMPLETE');
+  });
+
+  it('is available mid-round and clears the round in progress', () => {
+    toInput();
+    engine.submit(SARAH, 'b', PLAYERS);
+    expect(engine.availableActions().map((a) => a.action)).toContain('END_PARTY');
+
+    run('END_PARTY');
+    expect(engine.currentPhase()).toBe('PARTY_COMPLETE');
+    expect(engine.submissionCount()).toBe(0);
+  });
+
+  it('keeps earned scores intact', () => {
+    toInput();
+    engine.submit(SARAH, 'b', PLAYERS);
+    run('LOCK_SUBMISSIONS', 'SHOW_RESULTS', 'END_PARTY');
+
+    expect(engine.scoreFor(SARAH.id)).toBe(100);
+  });
+
+  it('ranks real players but excludes the special player from the finale board', () => {
+    toInput();
+    engine.submit(SARAH, 'b', PLAYERS);
+    run('LOCK_SUBMISSIONS', 'SHOW_RESULTS', 'END_PARTY');
+
+    const view = engine.displayView(PLAYERS);
+    expect(view.kind).toBe('party_complete');
+    if (view.kind !== 'party_complete') return;
+    expect(view.specialPlayerName).toBe('Judy');
+    expect(view.rows.map((row) => row.playerName)).not.toContain('Judy');
+    expect(view.rows[0]?.playerName).toBe('Sarah');
+  });
+
+  it('gives the special player a distinct finale message with no ranking', () => {
+    run('END_PARTY');
+
+    const view = engine.playerView(JUDY, PLAYERS);
+    expect(view.kind).toBe('party_complete');
+    if (view.kind !== 'party_complete') return;
+    expect(view.special).toBe(true);
+    expect(view.standing).toBeNull();
+  });
+
+  it('gives a normal player their final rank', () => {
+    toInput();
+    engine.submit(SARAH, 'b', PLAYERS);
+    run('LOCK_SUBMISSIONS', 'SHOW_RESULTS', 'END_PARTY');
+
+    const view = engine.playerView(SARAH, PLAYERS);
+    expect(view.kind).toBe('party_complete');
+    if (view.kind !== 'party_complete') return;
+    expect(view.special).toBe(false);
+    expect(view.standing?.rank).toBe(1);
+  });
+
+  it('can return to game select or the lobby afterwards', () => {
+    run('END_PARTY');
+    run('RETURN_TO_GAME_SELECT');
+    expect(engine.currentPhase()).toBe('GAME_SELECT');
+
+    run('END_PARTY');
+    run('RETURN_TO_LOBBY');
+    expect(engine.currentPhase()).toBe('LOBBY');
+  });
+});
+

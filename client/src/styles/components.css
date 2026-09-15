@@ -82,6 +82,19 @@
   --btn-border: var(--c-rust);
 }
 
+/* Celebratory, not destructive: gold, its own visual category on the host screen. */
+.btn--special {
+  --btn-bg: var(--c-brass);
+  --btn-fg: var(--c-on-accent);
+  --btn-border: var(--c-brass);
+  font-weight: 700;
+}
+
+.btn--special:hover:not(:disabled) {
+  --btn-bg: #ecca8f;
+  --btn-border: #ecca8f;
+}
+
 .btn--sm {
   min-height: 2.25rem;
   padding: 0 var(--s-3);
@@ -545,4 +558,15 @@
   text-transform: uppercase;
   letter-spacing: var(--track-mid);
   color: var(--c-paper-faint);
+}
+
+/* ---------- confetti ---------- */
+
+.confetti {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 50;
 }

@@ -1,7 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
-import { DRAWING_GRID, type DisplayView, type DrawStroke, type ViewOption } from '@judybox/shared';
+import { DRAWING_GRID, type DisplayView, type DrawStroke, type LeaderboardRow, type ViewOption } from '@judybox/shared';
 import { Leaderboard } from './Leaderboard';
-import { Media, Meter, Paged, Stage, optionKey } from './ui';
+import { Confetti, Media, Meter, Paged, Stage, optionKey } from './ui';
 
 /** How many gallery entries the TV shows at once before it rotates. */
 const CAPTIONS_PER_PAGE = 6;
@@ -236,30 +236,56 @@ export function DisplayViewPanel({ view }: { view: DisplayView }): JSX.Element {
         </Stage>
       );
 
-    case 'leaderboard': {
-      const podium = view.rows.slice(0, PODIUM);
-      const runners = view.rows.slice(PODIUM, PODIUM + RUNNERS_UP);
-      const remaining = view.rows.length - podium.length - runners.length;
+    case 'leaderboard':
       return (
         <Stage kicker="Standings">
-          <Leaderboard rows={podium} variant="tv" />
-          {runners.length > 0 && <Leaderboard rows={runners} variant="runners" />}
-          {remaining > 0 && (
-            <p className="stage__sub">
-              +{remaining} more {remaining === 1 ? 'player' : 'players'}
-            </p>
-          )}
+          <PodiumBoard rows={view.rows} />
         </Stage>
       );
-    }
 
     case 'game_complete':
       return <Stage kicker="That’s a wrap" title={view.gameName} />;
+
+    case 'party_complete':
+      return (
+        <Stage kicker="Thanks for playing">
+          <Confetti />
+          <div className="finale">
+            <div className="finale__board">
+              <PodiumBoard rows={view.rows} />
+            </div>
+            <div className="finale__champion">
+              <p className="finale__champion-label">
+                The real champion tonight: <strong>{view.specialPlayerName}</strong>. 
+              </p>
+              <p className="finale__infinity">🏆</p>
+            </div>
+          </div>
+        </Stage>
+      );
 
     case 'lobby':
     default:
       return <Stage />;
   }
+}
+
+/** Top three plus two runners-up, capped so 20 players never overflow the TV. */
+function PodiumBoard({ rows }: { rows: LeaderboardRow[] }): JSX.Element {
+  const podium = rows.slice(0, PODIUM);
+  const runners = rows.slice(PODIUM, PODIUM + RUNNERS_UP);
+  const remaining = rows.length - podium.length - runners.length;
+  return (
+    <>
+      <Leaderboard rows={podium} variant="tv" />
+      {runners.length > 0 && <Leaderboard rows={runners} variant="runners" />}
+      {remaining > 0 && (
+        <p className="stage__sub">
+          +{remaining} more {remaining === 1 ? 'player' : 'players'}
+        </p>
+      )}
+    </>
+  );
 }
 
 function judgingLabel(deciding: boolean): string {

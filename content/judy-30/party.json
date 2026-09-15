@@ -72,8 +72,8 @@
           "options": [
             "Go shopping",
             "Find a museum",
-            "Find an absurdly good restaurant",
-            "Walk around with no plan"
+            "Go to the only kosher Michelin Star restaurant",
+            "Stare at buildings all day"
           ]
         },
         {
@@ -133,12 +133,22 @@
       },
       "rounds": [
         {
-          "prompt": "Judy when she sees a kitchen island that is 15cm too short.",
-          "image": "placeholder/room-01.svg"
+          "image": "caption-this/PXL_20221026_165622082.MP.jpg"
         },
         {
-          "prompt": "Judy, five minutes into assembling flat-pack furniture.",
-          "image": "placeholder/room-02.svg"
+          "image": "caption-this/20181125_100516.jpg"
+        },
+        {
+          "image": "caption-this/20171019_234327.jpg"
+        },
+        {
+          "image": "caption-this/20170217_143454_HDR.jpg"
+        },
+        {
+          "image": "caption-this/20170216_212230_HDR.jpg"
+        },
+        {
+          "image": "caption-this/20160914_081748.jpg"
         }
       ]
     },
@@ -152,6 +162,24 @@
       "rounds": [
         {
           "prompt": "Judy's ultimate tactic to convince Roni to finally buy a dishwasher"
+        },
+        {
+          "prompt": "Judy's special nickname for Roni"
+        },
+        {
+          "prompt": "If Judy were to hack into your instagram, what picture/video would she send to everyone?"
+        },
+        {
+          "prompt": "These potential clients were a big red flag because..."
+        },
+        {
+          "prompt": "What is taking up all of Judy's cloud storage?"
+        },
+        {
+          "prompt": "What is one thing Judy would remove from every house in Israel"
+        },
+        {
+          "prompt": "What is Judy's unofficial love language?"
         }
       ]
     },
@@ -168,6 +196,12 @@
         },
         {
           "prompt": "Draw Judy's face the moment someone says \"could we see one more option?\"."
+        },
+        {
+          "prompt": "Draw Judy's dream house (simplified)."
+        },
+        {
+          "prompt": "Draw Judy's face when she finds out yet another boy wants to marry Adi."
         }
       ]
     }

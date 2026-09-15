@@ -97,6 +97,8 @@ export const ENGINE_PHASES = [
   'RESULTS',
   'LEADERBOARD',
   'GAME_COMPLETE',
+  /** Party-wide finale, reachable from any phase. Not owned by any game. */
+  'PARTY_COMPLETE',
 ] as const;
 export type EnginePhase = (typeof ENGINE_PHASES)[number];
 
@@ -115,6 +117,7 @@ export const HOST_ACTIONS = [
   'RESTART_GAME',
   'RETURN_TO_GAME_SELECT',
   'RETURN_TO_LOBBY',
+  'END_PARTY',
 ] as const;
 export type HostAction = (typeof HOST_ACTIONS)[number];
 
@@ -243,7 +246,13 @@ export type DisplayView =
       judyDeciding: boolean;
     }
   | { kind: 'leaderboard'; rows: LeaderboardRow[] }
-  | { kind: 'game_complete'; gameName: string };
+  | { kind: 'game_complete'; gameName: string }
+  | {
+      kind: 'party_complete';
+      /** Real standings, ranked, excluding the special player. */
+      rows: LeaderboardRow[];
+      specialPlayerName: string;
+    };
 
 export type PlayerView =
   | { kind: 'idle'; message: string }
@@ -306,6 +315,14 @@ export type PlayerView =
       /** Exactly one of `text`/`strokes` is set per entry, depending on the game. */
       entries: { id: string; text?: string; strokes?: DrawStroke[] }[];
       pickedId: string | null;
+    }
+  | {
+      kind: 'party_complete';
+      /** True only for the special player, whose message and treatment differ. */
+      special: boolean;
+      /** Null for the special player, who is not ranked on this screen. */
+      standing: PlayerStanding | null;
+      message: string;
     };
 
 export type SubmissionRejectionCode =
