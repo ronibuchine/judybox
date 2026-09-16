@@ -19,6 +19,13 @@
   /* Light surface used behind QR codes, drawings and image mats. */
   --c-canvas: #f7f3ec;
 
+  /* Drawing ink colors. */
+  --c-drawing-black: var(--c-ink-200);
+  --c-drawing-blue: #6f9fc2;
+  --c-drawing-green: var(--c-sage);
+  --c-drawing-red: var(--c-rust);
+  --c-drawing-yellow: var(--c-brass);
+
   /* ---- text ---- */
   --c-paper: #f6f1e9;
   --c-paper-muted: #c2b8ac;

@@ -376,6 +376,39 @@
   touch-action: none;
 }
 
+.draw__colors {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--s-2);
+  width: 100%;
+}
+
+.draw__color {
+  min-width: 0;
+  min-height: var(--tap);
+  padding: 0;
+}
+
+.draw__swatch {
+  display: block;
+  width: 1.35rem;
+  height: 1.35rem;
+  border: 2px solid var(--c-canvas);
+  border-radius: 50%;
+  background: var(--draw-color);
+  box-shadow: 0 0 0 1px var(--draw-color);
+}
+
+.draw__color--black { --draw-color: var(--c-drawing-black); }
+.draw__color--blue { --draw-color: var(--c-drawing-blue); }
+.draw__color--green { --draw-color: var(--c-drawing-green); }
+.draw__color--red { --draw-color: var(--c-drawing-red); }
+.draw__color--yellow { --draw-color: var(--c-drawing-yellow); }
+
+.draw__color.btn--active .draw__swatch {
+  box-shadow: 0 0 0 2px var(--c-brass), 0 0 0 4px var(--c-ink-050);
+}
+
 .draw__tools {
   display: flex;
   gap: var(--s-2);

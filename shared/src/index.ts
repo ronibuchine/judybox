@@ -37,10 +37,19 @@ export const DRAWING_GRID = 1000;
 export const MAX_STROKES_PER_DRAWING = 40;
 export const MAX_POINTS_PER_STROKE = 100;
 
+export const DRAWING_COLORS = ['black', 'blue', 'green', 'red', 'yellow'] as const;
+export type DrawingColor = (typeof DRAWING_COLORS)[number];
+
+export function isDrawingColor(value: unknown): value is DrawingColor {
+  return typeof value === 'string' && (DRAWING_COLORS as readonly string[]).includes(value);
+}
+
 /** One drawn line. Points are a flat [x0, y0, x1, y1, ...] list on a 0-1000 grid. */
 export interface DrawStroke {
   points: number[];
   size: 'thin' | 'thick';
+  /** Omitted color is black for backward-compatible drawing payloads. */
+  color?: DrawingColor;
   /** True erases rather than draws, via destination-out compositing. */
   erase?: boolean;
 }

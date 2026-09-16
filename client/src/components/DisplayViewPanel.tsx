@@ -1,6 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
-import { DRAWING_GRID, type DisplayView, type DrawStroke, type LeaderboardRow, type ViewOption } from '@judybox/shared';
+import { type DisplayView, type DrawStroke, type LeaderboardRow, type ViewOption } from '@judybox/shared';
 import { Leaderboard } from './Leaderboard';
+import { paintStrokes } from './drawing';
 import { Confetti, Media, Meter, Paged, Stage, optionKey } from './ui';
 
 /** How many gallery entries the TV shows at once before it rotates. */
@@ -370,23 +371,7 @@ function DrawingTile({ strokes }: { strokes: readonly DrawStroke[] }): JSX.Eleme
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#f7f3ec';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    for (const stroke of strokes) {
-      if (stroke.points.length < 4) continue;
-      ctx.globalCompositeOperation = stroke.erase ? 'destination-out' : 'source-over';
-      ctx.strokeStyle = '#241f1c';
-      ctx.lineWidth = stroke.size === 'thick' ? 9 : 3.5;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.beginPath();
-      for (let i = 0; i < stroke.points.length; i += 2) {
-        const x = (stroke.points[i]! / DRAWING_GRID) * canvas.width;
-        const y = (stroke.points[i + 1]! / DRAWING_GRID) * canvas.height;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-    }
-    ctx.globalCompositeOperation = 'source-over';
+    paintStrokes(ctx, strokes, canvas.width, canvas.height);
   }, [strokes]);
 
   return <canvas ref={canvasRef} className="tile__canvas" width={260} height={260} />;

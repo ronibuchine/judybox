@@ -1,5 +1,6 @@
 import {
   DRAWING_GRID,
+  isDrawingColor,
   MAX_POINTS_PER_STROKE,
   MAX_STROKES_PER_DRAWING,
   type DisplayView,
@@ -94,10 +95,11 @@ export class DrawThisGame implements GameDefinition {
     for (const candidate of parsed) {
       if (typeof candidate !== 'object' || candidate === null) return reject;
       const stroke = candidate as Record<string, unknown>;
-      const { points, size, erase } = stroke;
+      const { points, size, color, erase } = stroke;
 
       if (size !== 'thin' && size !== 'thick') return reject;
       if (erase !== undefined && typeof erase !== 'boolean') return reject;
+      if (color !== undefined && !isDrawingColor(color)) return reject;
       if (
         !Array.isArray(points) ||
         points.length === 0 ||
@@ -118,7 +120,11 @@ export class DrawThisGame implements GameDefinition {
         return reject;
       }
 
-      strokes.push({ points: points as number[], size, ...(erase ? { erase: true } : {}) });
+      strokes.push({
+        points: points as number[],
+        size,
+        ...(erase ? { erase: true } : color !== undefined ? { color } : {}),
+      });
     }
 
     return { ok: true, value: JSON.stringify(strokes) };

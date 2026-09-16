@@ -99,7 +99,7 @@
       "type": "caption-this",
       "name": "Caption This",
       "scoring": {
-        "specialPick": 150
+        "specialPick": 200
       },
       "rounds": [
         {

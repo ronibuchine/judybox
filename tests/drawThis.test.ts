@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
+  DRAWING_COLORS,
   DRAWING_GRID,
   MAX_POINTS_PER_STROKE,
   MAX_STROKES_PER_DRAWING,
@@ -66,6 +67,63 @@ describe('submitting a drawing', () => {
       PLAYERS,
     );
     expect(result).toEqual({ ok: true });
+  });
+
+  it('accepts every canonical drawing color and preserves it for judging', () => {
+    const colorPlayers = [
+      SARAH,
+      DAVID,
+      player('p4', 'Alex'),
+      player('p5', 'Morgan'),
+      player('p6', 'Riley'),
+      JUDY,
+    ];
+    openInput(colorPlayers);
+    for (const [index, color] of DRAWING_COLORS.entries()) {
+      expect(engine.submit(colorPlayers[index]!, drawing([stroke({ color })]), colorPlayers)).toEqual({
+        ok: true,
+      });
+    }
+    act('LOCK_SUBMISSIONS', colorPlayers);
+    act('REVEAL', colorPlayers);
+
+    const view = engine.playerView(JUDY, colorPlayers);
+    expect(view.kind).toBe('judge');
+    if (view.kind !== 'judge') return;
+    expect(
+      view.entries.flatMap((entry) => (entry.strokes ?? []).map((submitted) => submitted.color)),
+    ).toEqual([...DRAWING_COLORS]);
+  });
+
+  it('accepts a legacy stroke without a color', () => {
+    openInput();
+    expect(engine.submit(SARAH, drawing([stroke()]), PLAYERS)).toEqual({ ok: true });
+  });
+
+  it.each(['purple', 7, null])('rejects invalid drawing color %j', (color) => {
+    openInput();
+    const result = engine.submit(
+      SARAH,
+      JSON.stringify([{ points: [0, 0, 100, 100], size: 'thin', color }]),
+      PLAYERS,
+    );
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.code).toBe('invalid_value');
+  });
+
+  it('strips color from sanitized eraser strokes', () => {
+    openInput();
+    expect(engine.submit(SARAH, drawing([stroke({ erase: true, color: 'red' })]), PLAYERS)).toEqual({
+      ok: true,
+    });
+    act('LOCK_SUBMISSIONS');
+    act('REVEAL');
+
+    const view = engine.playerView(JUDY, PLAYERS);
+    expect(view.kind).toBe('judge');
+    if (view.kind !== 'judge') return;
+    expect(view.entries[0]?.strokes).toEqual([{ points: stroke().points, size: 'thin', erase: true }]);
   });
 
   it('rejects an empty drawing', () => {

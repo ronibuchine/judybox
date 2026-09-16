@@ -10,7 +10,9 @@ import {
 import {
   playerNameKey,
   DRAWING_GRID,
+  DRAWING_COLORS,
   MAX_PLAYER_NAME_LENGTH,
+  type DrawingColor,
   type DrawStroke,
   type PlayerStanding,
   type PlayerView,
@@ -18,6 +20,7 @@ import {
 } from '@judybox/shared';
 import { StatusBadge } from '../components/StatusBadge';
 import { SpecialNoteEditor } from '../components/SpecialNoteEditor';
+import { paintStrokes } from '../components/drawing';
 import { AnswerOption, Badge, Button, Confetti, Media, WaitingState } from '../components/ui';
 import { useJudyBox } from '../net/useJudyBox';
 
@@ -465,32 +468,6 @@ function CaptionInput({
   );
 }
 
-/** Renders a stroke list onto whatever canvas is given, scaled to its pixel size. */
-function paintStrokes(
-  ctx: CanvasRenderingContext2D,
-  strokes: readonly DrawStroke[],
-  width: number,
-  height: number,
-): void {
-  for (const stroke of strokes) {
-    if (stroke.points.length < 4) continue;
-    ctx.globalCompositeOperation = stroke.erase ? 'destination-out' : 'source-over';
-    ctx.strokeStyle = '#241f1c';
-    ctx.lineWidth = stroke.size === 'thick' ? width / 32 : width / 110;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.beginPath();
-    for (let i = 0; i < stroke.points.length; i += 2) {
-      const x = (stroke.points[i]! / DRAWING_GRID) * width;
-      const y = (stroke.points[i + 1]! / DRAWING_GRID) * height;
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-  }
-  ctx.globalCompositeOperation = 'source-over';
-}
-
 function gridPoint(event: ReactPointerEvent<HTMLCanvasElement>, canvas: HTMLCanvasElement): [number, number] {
   const rect = canvas.getBoundingClientRect();
   const clamp = (n: number): number => Math.max(0, Math.min(DRAWING_GRID, Math.round(n)));
@@ -512,6 +489,7 @@ function DrawCanvas({
   const activeStroke = useRef<number[] | null>(null);
   const [strokes, setStrokes] = useState<DrawStroke[]>([]);
   const [brush, setBrush] = useState<'thin' | 'thick'>('thin');
+  const [color, setColor] = useState<DrawingColor>('black');
   const [erasing, setErasing] = useState(false);
 
   useEffect(() => {
@@ -549,7 +527,7 @@ function DrawCanvas({
     if (ctx) {
       paintStrokes(
         ctx,
-        [{ points: [lastX, lastY, x, y], size: brush, ...(erasing ? { erase: true } : {}) }],
+        [{ points: [lastX, lastY, x, y], size: brush, ...(erasing ? { erase: true } : { color }) }],
         canvas.width,
         canvas.height,
       );
@@ -562,7 +540,7 @@ function DrawCanvas({
     if (!points || points.length < 4) return;
     setStrokes((previous) => [
       ...previous,
-      { points, size: brush, ...(erasing ? { erase: true } : {}) },
+      { points, size: brush, ...(erasing ? { erase: true } : { color }) },
     ]);
   };
 
@@ -579,24 +557,36 @@ function DrawCanvas({
           onPointerUp={commit}
           onPointerLeave={commit}
         />
+        <div className="draw__colors" role="group" aria-label="Ink color">
+          {DRAWING_COLORS.map((drawingColor) => (
+            <Button
+              key={drawingColor}
+              variant="ghost"
+              className={`draw__color draw__color--${drawingColor}`}
+              active={color === drawingColor && !erasing}
+              aria-label={`${drawingColor[0]!.toUpperCase()}${drawingColor.slice(1)} ink`}
+              aria-pressed={color === drawingColor && !erasing}
+              onClick={() => {
+                setColor(drawingColor);
+                setErasing(false);
+              }}
+            >
+              <span className="draw__swatch" aria-hidden="true" />
+            </Button>
+          ))}
+        </div>
         <div className="draw__tools">
           <Button
             variant="ghost"
-            active={brush === 'thin' && !erasing}
-            onClick={() => {
-              setBrush('thin');
-              setErasing(false);
-            }}
+            active={brush === 'thin'}
+            onClick={() => setBrush('thin')}
           >
             Thin
           </Button>
           <Button
             variant="ghost"
-            active={brush === 'thick' && !erasing}
-            onClick={() => {
-              setBrush('thick');
-              setErasing(false);
-            }}
+            active={brush === 'thick'}
+            onClick={() => setBrush('thick')}
           >
             Thick
           </Button>
