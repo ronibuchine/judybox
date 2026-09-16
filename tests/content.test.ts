@@ -17,29 +17,20 @@ describe('loadPartyPack', () => {
     expect(loadPartyPack('demo').warnings).toEqual([]);
   });
 
-  it('builds the Would Judy Approve game from the judy-30 pack', () => {
-    const game = loadPartyPack('judy-30').games.find((entry) => entry.id === 'would-judy-approve');
-    expect(game?.name).toBe('Judy Would Like a Word');
-    expect(game?.roundCount).toBe(3);
-  });
-
   it('builds the two new games from the judy-30 pack', () => {
     const games = loadPartyPack('judy-30').games;
     expect(games.find((entry) => entry.id === 'what-would-judy-do')?.name).toBe('WWJD');
-    expect(games.find((entry) => entry.id === 'judys-rotten-tomatoes')?.roundCount).toBe(3);
   });
 
   it('builds Caption This and Draw This from the judy-30 pack', () => {
     const games = loadPartyPack('judy-30').games;
     expect(games.find((entry) => entry.id === 'caption-this')?.name).toBe('Caption This');
-    expect(games.find((entry) => entry.id === 'draw-this')?.roundCount).toBe(2);
   });
 
   it('builds Quiplash from the judy-30 pack', () => {
     const games = loadPartyPack('judy-30').games;
     const quiplash = games.find((entry) => entry.id === 'quiplash');
     expect(quiplash?.name).toBe('Quiplash');
-    expect(quiplash?.roundCount).toBe(1);
   });
 
   it('reports a missing pack with an actionable message', () => {

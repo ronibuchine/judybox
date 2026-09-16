@@ -4,60 +4,7 @@
   "specialPlayer": {
     "name": "Judy"
   },
-  "games": [
-    {
-      "id": "warm-up",
-      "type": "multiple-choice",
-      "name": "Warm-Up Trivia",
-      "scoring": {
-        "correctAnswer": 100,
-        "manualStep": 100
-      },
-      "rounds": [
-        {
-          "prompt": "What is 2 + 2?",
-          "options": ["3", "4", "5", "22"],
-          "correctOptionIndex": 1
-        },
-        {
-          "prompt": "How many candles on a 30th birthday cake?",
-          "options": ["13", "29", "30", "As few as possible"],
-          "correctOptionIndex": 2
-        }
-      ]
-    },
-    {
-      "id": "would-judy-approve",
-      "type": "would-approve",
-      "name": "Judy Would Like a Word",
-      "scoring": {
-        "predictSpecial": 100,
-        "manualStep": 100
-      },
-      "rounds": [
-        {
-          "prompt": "Would Judy approve of this room?",
-          "image": "placeholder/room-01.svg",
-          "options": ["LOVE", "MAYBE", "NO", "THIS OFFENDS ME"],
-          "judyAnswer": 1,
-          "judyComment": "It is fine. That is the whole problem, it is just fine."
-        },
-        {
-          "prompt": "Would Judy approve of this room?",
-          "image": "placeholder/room-02.svg",
-          "options": ["LOVE", "MAYBE", "NO", "THIS OFFENDS ME"],
-          "judyAnswer": 3,
-          "judyComment": "Why would anyone put that there?"
-        },
-        {
-          "prompt": "Would Judy approve of this room?",
-          "image": "placeholder/room-03.svg",
-          "options": ["LOVE", "MAYBE", "NO", "THIS OFFENDS ME"],
-          "judyAnswer": 0,
-          "judyComment": "Unhinged, and I mean that as a compliment."
-        }
-      ]
-    },
+  "games": [ 
     {
       "id": "what-would-judy-do",
       "type": "what-would-judy-do",
@@ -70,10 +17,10 @@
         {
           "prompt": "Judy has three free hours in Paris. What does she do?",
           "options": [
-            "Go shopping",
-            "Find a museum",
+            "Go to Primark",
+            "Take a train to London and watch a show at West End",
             "Go to the only kosher Michelin Star restaurant",
-            "Stare at buildings all day"
+            "Stare at buildings all day."
           ]
         },
         {
@@ -93,6 +40,21 @@
             "Orders a round for everyone",
             "Suggests going somewhere better"
           ]
+        },
+        {
+          "prompt": "Would Judy approve of this room?",
+          "image": "placeholder/room-01.svg",
+          "options": ["LOVE", "MAYBE", "NO", "THIS OFFENDS ME"]
+        },
+        {
+          "prompt": "Would Judy approve of this room?",
+          "image": "placeholder/room-02.svg",
+          "options": ["LOVE", "MAYBE", "NO", "THIS OFFENDS ME"]
+        },
+        {
+          "prompt": "Would Judy approve of this room?",
+          "image": "placeholder/room-03.svg",
+          "options": ["LOVE", "MAYBE", "NO", "THIS OFFENDS ME"]
         }
       ]
     },
@@ -110,8 +72,16 @@
       },
       "rounds": [
         {
-          "prompt": "How would Judy rate this room?",
-          "image": "placeholder/room-01.svg"
+          "prompt": "Ordering from Temu"
+        },
+        {
+          "prompt": "Ordering from AliExpress"
+        },
+        {
+          "prompt": "Getting her Instagram account hacked"
+        },
+        {
+          "prompt": "Eating at Caffit"
         },
         {
           "prompt": "How would Judy rate this room?",
@@ -133,22 +103,28 @@
       },
       "rounds": [
         {
-          "image": "caption-this/PXL_20221026_165622082.MP.jpg"
+          "image": "caption-this/PXL_20221026_165622082.MP.jpg",
+          "prompt": "Caption this image"
         },
         {
-          "image": "caption-this/20181125_100516.jpg"
+          "image": "caption-this/20181125_100516.jpg",
+          "prompt": "Caption this image"
         },
         {
-          "image": "caption-this/20171019_234327.jpg"
+          "image": "caption-this/20171019_234327.jpg",
+          "prompt": "Caption this image"
         },
         {
-          "image": "caption-this/20170217_143454_HDR.jpg"
+          "image": "caption-this/20170217_143454_HDR.jpg",
+          "prompt": "Caption this image"
         },
         {
-          "image": "caption-this/20170216_212230_HDR.jpg"
+          "image": "caption-this/20170216_212230_HDR.jpg",
+          "prompt": "Caption this image"
         },
         {
-          "image": "caption-this/20160914_081748.jpg"
+          "image": "caption-this/20160914_081748.jpg",
+          "prompt": "Caption this image"
         }
       ]
     },
