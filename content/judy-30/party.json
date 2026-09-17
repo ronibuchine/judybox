@@ -24,37 +24,59 @@
           ]
         },
         {
-          "prompt": "The restaurant brings out the wrong order. What does Judy do?",
+          "prompt": "Judy is at the shuk and is buying a small container of baklava. The price reads 300NIS.",
           "options": [
-            "Eat it anyway",
-            "Politely flag it",
-            "Send it back immediately",
-            "Say nothing and remember forever"
+            "She tells the vendor that she doesn't need that much and puts half back.",
+            "She smiles and gives over her credit card knowing full well she got played",
+            "She buys it and tells Roni when she gets home that it was intentional and she knew the price before she put the container together",
+            "Get's really mad at the vendor for tricking her and buys the exact same amount of baklava from the vendor across the alley"
           ]
         },
         {
           "prompt": "It is 11pm and someone suggests one more drink. Judy...",
           "options": [
-            "Is already in the taxi",
-            "Says yes but means one",
-            "Orders a round for everyone",
-            "Suggests going somewhere better"
+            "Has another drink because she saw a spider earlier and she deserves it",
+            "Turns it down and observes everyone else get tipsy around her",
+            "Wakes up from her nightmare in a cold sweat and tells Roni that he cheated on her in her dream",
+            "Realizes how red in the face she is even though it was only 1 cup of wine and decides to stop for the night."
           ]
         },
         {
           "prompt": "Would Judy approve of this room?",
-          "image": "placeholder/room-01.svg",
-          "options": ["LOVE", "MAYBE", "NO", "THIS OFFENDS ME"]
+          "image": "wwjd/Screenshot 2026-09-17 222750.png",
+          "options": ["LOVE", "It's the client's style I care about, not mine", "No.", "This offends me"]
         },
         {
-          "prompt": "Would Judy approve of this room?",
-          "image": "placeholder/room-02.svg",
-          "options": ["LOVE", "MAYBE", "NO", "THIS OFFENDS ME"]
+          "prompt": "Judy walks into the room and this is the scene. Judy ____",
+          "image": "wwjd/20260911_085518.jpg",
+          "options": ["gives a big kiss on the cheek", "lets Roni clean her up and then a big kiss on the cheek", "leaves the room because she probably pooped too and it's Roni's turn to deal with it", "leaves the room because Yael is almost done eating and she will soon start screaming for breakfast #3"]
         },
         {
-          "prompt": "Would Judy approve of this room?",
-          "image": "placeholder/room-03.svg",
-          "options": ["LOVE", "MAYBE", "NO", "THIS OFFENDS ME"]
+          "prompt": "Judy wand Roni are having a date night and the food ends up tasting like feet. The waiter comes over to ask how everything is.",
+          "options": [
+            "Judy quickly shoves food in her mouth, smiles and mumbles with food in her mouth 'so delicious!'", 
+            "Judy pretends she didn't hear the waiter and lets Roni handle it", 
+            "Judy tells the waiter that actually the food wasn't so great and the waiter promptlyy gives them a free starter and chasers and they end up having a wonderful night", 
+            "Judy starts to cry because as the waiter asks them how it is, he scratches his foot and picks up their pitcher of water."
+          ]
+        },
+        {
+          "prompt": "Judy says, 'We don't need to take a picture.' What happens next?",
+          "options": [
+            "Nothing. She means it.",
+            "Someone else takes the picture",
+            "Five minutes later there are 14 pictures",
+            "She asks why nobody documented the moment"
+          ]
+        },
+        {
+          "prompt": "Judy gets one completely uninterrupted day with nothing to do. She...",
+          "options": [
+            "doom scrolls all day and then asks Roni why he didn't pay attention to her",
+            "Trick question, it doesn't exist",
+            "Takes the kids out of their misgeret early and goes with them to the paalton",
+            "Sighs because 5 minutes into her uninterrupted day, Yael starts screaming for breakfast #2 and Roni decided that this is the day he finally decides to wake up for minyan"
+          ]
         }
       ]
     },
