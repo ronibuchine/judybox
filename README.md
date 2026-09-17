@@ -134,9 +134,28 @@ npm run start
 npm run simulate -- --players 20 --include-judy
 ```
 
-Useful options include `--game <id>`, `--host <url>`, `--chaos`, `--verbose`,
-and `--seed <number>`. The `--` separator is required so npm passes the flags
-to the simulator. A non-zero exit code means the simulation recorded a failure.
+| Flag | Description |
+| --- | --- |
+| `--players <number>` | Number of normal fake players. |
+| `--host <url>` | Running party server URL. |
+| `--game <id>` | Restrict automatic mode to one game. |
+| `--chaos` | Enable reproducible delays, reconnects, skips, and duplicates. |
+| `--verbose` | Log per-player activity. |
+| `--seed <number>` | Seed chaos decisions. |
+| `--include-judy` | Add the configured special player. |
+| `--manual-host` | Keep players connected while the browser host controls progression. |
+
+For manual host mode, start the simulator and use the browser host to select and
+advance the game:
+
+```bash
+npm run simulate -- --players 20 --include-judy --manual-host
+```
+
+Ctrl+C disconnects the fake players cleanly. `--manual-host` cannot be combined
+with `--game`, because the browser host selects the game. The `--` separator is
+required so npm passes the flags to the simulator. A non-zero exit code means the
+simulation recorded a failure.
 
 ## Development commands
 

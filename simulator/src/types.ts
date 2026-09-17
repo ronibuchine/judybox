@@ -14,6 +14,12 @@ export interface SimulatorOptions {
   seed: number;
   /** Also joins one fake player under the pack's configured special-player name. */
   includeJudy: boolean;
+  /** Browser-host progression replaces simulated-host progression. */
+  manualHost: boolean;
+}
+
+export interface SimulationControl {
+  stopSignal?: AbortSignal;
 }
 
 export interface SimulationResult {

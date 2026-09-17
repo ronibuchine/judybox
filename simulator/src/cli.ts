@@ -13,10 +13,11 @@ interface RawArgs {
   verbose: boolean;
   seed?: string;
   includeJudy: boolean;
+  manualHost: boolean;
 }
 
 function parseArgs(argv: string[]): RawArgs {
-  const args: RawArgs = { chaos: false, verbose: false, includeJudy: false };
+  const args: RawArgs = { chaos: false, verbose: false, includeJudy: false, manualHost: false };
   for (let i = 0; i < argv.length; i += 1) {
     const token = argv[i];
     switch (token) {
@@ -43,6 +44,9 @@ function parseArgs(argv: string[]): RawArgs {
       case '--include-judy':
         args.includeJudy = true;
         break;
+      case '--manual-host':
+        args.manualHost = true;
+        break;
       default:
         console.warn(`[simulate] ignoring unknown argument: ${token}`);
     }
@@ -59,6 +63,9 @@ function resolveOptions(raw: RawArgs): SimulatorOptions {
   if (!Number.isFinite(seed)) {
     throw new Error(`--seed must be a number, got "${raw.seed}"`);
   }
+  if (raw.manualHost && raw.game !== undefined) {
+    throw new Error('--manual-host cannot be combined with --game because the browser host selects the game');
+  }
 
   return {
     players,
@@ -68,13 +75,23 @@ function resolveOptions(raw: RawArgs): SimulatorOptions {
     verbose: raw.verbose,
     seed,
     includeJudy: raw.includeJudy,
+    manualHost: raw.manualHost,
   };
 }
 
 async function main(): Promise<void> {
   const options = resolveOptions(parseArgs(process.argv.slice(2)));
-  const result = await runSimulation(options);
-  process.exitCode = result.ok ? 0 : 1;
+  const controller = new AbortController();
+  const handleSignal = (): void => controller.abort();
+  process.once('SIGINT', handleSignal);
+  process.once('SIGTERM', handleSignal);
+  try {
+    const result = await runSimulation(options, { stopSignal: controller.signal });
+    process.exitCode = result.ok ? 0 : 1;
+  } finally {
+    process.removeListener('SIGINT', handleSignal);
+    process.removeListener('SIGTERM', handleSignal);
+  }
 }
 
 main().catch((error: unknown) => {

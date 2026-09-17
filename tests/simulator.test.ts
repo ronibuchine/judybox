@@ -12,6 +12,7 @@ import { Session } from '../server/src/session';
 import { attachWebSocketServer } from '../server/src/ws';
 import { runSimulation } from '../simulator/src/simulate';
 import type { SimulatorOptions } from '../simulator/src/types';
+import { HostClient } from '../simulator/src/hostClient';
 
 const TRIVIA = new MultipleChoiceGame({
   id: 'trivia',
@@ -42,6 +43,7 @@ const DRAW = new DrawThisGame({
 
 interface RunningServer {
   url: string;
+  session: Session;
   close: () => Promise<void>;
 }
 
@@ -55,6 +57,7 @@ async function startServer(games: GameDefinition[], specialPlayerName = 'Judy'):
   const port = (httpServer.address() as AddressInfo).port;
   return {
     url: `http://127.0.0.1:${port}`,
+    session,
     close: () => new Promise<void>((resolve) => httpServer.close(() => resolve())),
   };
 }
@@ -66,8 +69,17 @@ function options(overrides: Partial<SimulatorOptions> & { host: string }): Simul
     verbose: false,
     seed: 1,
     includeJudy: false,
+    manualHost: false,
     ...overrides,
   };
+}
+
+async function waitFor(predicate: () => boolean, timeoutMs: number): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (!predicate()) {
+    if (Date.now() >= deadline) throw new Error(`timed out after ${timeoutMs}ms waiting for condition`);
+    await new Promise<void>((resolve) => setTimeout(resolve, 10));
+  }
 }
 
 describe('simulator', () => {
@@ -242,6 +254,51 @@ describe('simulator', () => {
       const resultB = await runSimulation(options({ host: server.url, players: 3 }));
       expect(resultB.ok).toBe(false);
       expect(resultB.failures.length).toBeGreaterThan(0);
+    } finally {
+      await server.close();
+    }
+  });
+
+  it('keeps fake players connected while an external host controls manual mode', async () => {
+    const server = await startServer([TRIVIA]);
+    const externalHost = new HostClient(server.url.replace(/^http/, 'ws') + '/ws');
+    const controller = new AbortController();
+    const simulation = runSimulation(
+      options({ host: server.url, players: 20, manualHost: true }),
+      { stopSignal: controller.signal },
+    );
+    try {
+      await externalHost.connect();
+      await waitFor(() => server.session.connectedCount() === 20, 5_000);
+
+      await externalHost.action('OPEN_GAME_SELECT');
+      await externalHost.action('START_GAME', { gameId: 'trivia' });
+      await externalHost.action('CONTINUE');
+      await externalHost.action('OPEN_INPUT');
+      const submissions = await externalHost.waitForSubmissions(20, 5_000);
+      expect(submissions.settled).toBe(true);
+      expect(submissions.submittedCount).toBe(20);
+
+      controller.abort();
+      const result = await simulation;
+      expect(result.ok).toBe(true);
+      expect(result.players).toBe(20);
+      expect(result.failures).toEqual([]);
+      expect(result.rounds).toBe(0);
+    } finally {
+      controller.abort();
+      externalHost.close();
+      await server.close();
+      await simulation;
+    }
+  }, 15_000);
+
+  it('rejects manual mode without a stop signal', async () => {
+    const server = await startServer([TRIVIA]);
+    try {
+      const result = await runSimulation(options({ host: server.url, manualHost: true }));
+      expect(result.ok).toBe(false);
+      expect(result.failures).toContain('manual host mode requires a stop signal');
     } finally {
       await server.close();
     }

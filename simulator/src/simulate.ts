@@ -1,7 +1,7 @@
 import { FakePlayer } from './fakePlayer.js';
 import { HostClient } from './hostClient.js';
 import { Logger } from './logger.js';
-import type { SimulationResult, SimulatorOptions } from './types.js';
+import type { SimulationControl, SimulationResult, SimulatorOptions } from './types.js';
 
 const SUBMIT_SETTLE_TIMEOUT_MS = { calm: 1_200, chaos: 3_000 };
 const JUDY_PICK_TIMEOUT_MS = { calm: 1_500, chaos: 3_000 };
@@ -24,7 +24,10 @@ function playerName(index: number, total: number): string {
  * server, and a simulated host drives every legal transition, exactly like
  * the real host UI would.
  */
-export async function runSimulation(options: SimulatorOptions): Promise<SimulationResult> {
+export async function runSimulation(
+  options: SimulatorOptions,
+  control: SimulationControl = {},
+): Promise<SimulationResult> {
   const startedAt = Date.now();
   const logger = new Logger(options.verbose);
   const failures: string[] = [];
@@ -37,6 +40,7 @@ export async function runSimulation(options: SimulatorOptions): Promise<Simulati
   logger.info(`Players: ${options.players}`);
   logger.info(`Judy: ${options.includeJudy ? 'enabled' : 'disabled'}`);
   logger.info(`Chaos: ${options.chaos ? 'enabled' : 'disabled'}`);
+  logger.info(`Manual host: ${options.manualHost ? 'enabled' : 'disabled'}`);
   logger.info(`Server: ${options.host}`);
   logger.info('');
 
@@ -97,6 +101,14 @@ export async function runSimulation(options: SimulatorOptions): Promise<Simulati
       throw new Error('did not receive an initial engine snapshot from the server');
     }
 
+    if (options.manualHost) {
+      if (!control.stopSignal) {
+        throw new Error('manual host mode requires a stop signal');
+      }
+      logger.info('Manual host mode ready; use the browser host to control the game.');
+      logger.info('Press Ctrl+C to stop the simulator.');
+      await waitForAbort(control.stopSignal);
+    } else {
     const availableGames = host.latestSnapshot.games;
     const targetGameIds = options.gameId
       ? availableGames.filter((game) => game.id === options.gameId).map((game) => game.id)
@@ -159,6 +171,7 @@ export async function runSimulation(options: SimulatorOptions): Promise<Simulati
       }
       await host.action('RETURN_TO_GAME_SELECT');
     }
+    }
 
     for (const player of fakePlayers) {
       const stats = player.statsSnapshot();
@@ -190,4 +203,9 @@ export async function runSimulation(options: SimulatorOptions): Promise<Simulati
     failures,
     durationMs: Date.now() - startedAt,
   };
+}
+
+function waitForAbort(signal: AbortSignal): Promise<void> {
+  if (signal.aborted) return Promise.resolve();
+  return new Promise((resolve) => signal.addEventListener('abort', () => resolve(), { once: true }));
 }
