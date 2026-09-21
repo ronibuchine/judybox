@@ -106,13 +106,25 @@
           "prompt": "Eating at Caffit"
         },
         {
-          "prompt": "How would Judy rate this room?",
-          "image": "placeholder/room-02.svg",
-          "meta": "Listed at a price nobody should pay"
+          "prompt": "Potty training but this time it's not the Iran war."
         },
         {
-          "prompt": "How would Judy rate this room?",
-          "image": "placeholder/room-03.svg"
+          "prompt": "Buying furniture from IKEA"
+        },
+        {
+          "prompt": "Artificial plants"
+        },
+        {
+          "prompt": "LED strip lights"
+        },
+        {
+          "prompt": "Going to Europe and not taking any pictures"
+        },
+        {
+          "prompt": "The restaurant at Cramim"
+        },
+        {
+          "prompt": "A vacation without planning anything in advance"
         }
       ]
     },
@@ -147,6 +159,26 @@
         {
           "image": "caption-this/20160914_081748.jpg",
           "prompt": "Caption this image"
+        },
+        {
+          "image": "caption-this/adi.jpeg",
+          "prompt": "Caption this image"
+        },
+        {
+          "image": "caption-this/hina.jpeg",
+          "prompt": "Caption this image"
+        },
+        {
+          "image": "caption-this/yael.jpeg",
+          "prompt": "Caption this image"
+        },
+        {
+          "image": "caption-this/detectives.jpeg",
+          "prompt": "Caption this image"
+        },
+        {
+          "image": "caption-this/back-to-school.jpeg",
+          "prompt": "Caption this image"
         }
       ]
     },
@@ -178,6 +210,27 @@
         },
         {
           "prompt": "What is Judy's unofficial love language?"
+        },
+        {
+          "prompt": "Roni knew he was in trouble when Judy said..."
+        },
+        {
+          "prompt": "Judy knew a client was going to be difficult when they said..."
+        },
+        {
+          "prompt": "If Judy could redesign one thing in Roni's life, it would be..."
+        },
+        {
+          "prompt": "Judy opens the front door after a long day and says..."
+        },
+        {
+          "prompt": "What does Judy use ChatGPT for the most?"
+        },
+        {
+          "prompt": "Judy's most controversial interior design opinion"
+        },
+        {
+          "prompt": "Judy's most likely excuse for buying something she absolutely does not need"
         }
       ]
     },
@@ -200,6 +253,21 @@
         },
         {
           "prompt": "Draw Judy's face when she finds out yet another boy wants to marry Adi."
+        },
+        {
+          "prompt": "Draw something you might find in Judy's dream home."
+        },
+        {
+          "prompt": "Judy's version of heaven."
+        },
+        {
+          "prompt": "Judy's version of hell."
+        },
+        {
+          "prompt": "Draw Judy's brain during a busy workday."
+        },
+        {
+          "prompt": "Draw the contestant Judy falls in love with on Love Is Blind."
         }
       ]
     }
