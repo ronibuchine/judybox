@@ -88,7 +88,7 @@
         "exact": 500,
         "within5": 400,
         "within10": 300,
-        "within20": 150,
+        "within20": 100,
         "otherwise": 0,
         "manualStep": 100
       },
@@ -187,7 +187,7 @@
       "type": "quiplash",
       "name": "Quiplash",
       "scoring": {
-        "specialPick": 150
+        "specialPick": 200
       },
       "rounds": [
         {
@@ -239,7 +239,7 @@
       "type": "draw-this",
       "name": "Please Don't Judge My Art",
       "scoring": {
-        "specialPick": 150
+        "specialPick": 200
       },
       "rounds": [
         {
