@@ -52,11 +52,11 @@
           "options": ["gives a big kiss on the cheek", "lets Roni clean her up and then a big kiss on the cheek", "leaves the room because she probably pooped too and it's Roni's turn to deal with it", "leaves the room because Yael is almost done eating and she will soon start screaming for breakfast #3"]
         },
         {
-          "prompt": "Judy wand Roni are having a date night and the food ends up tasting like feet. The waiter comes over to ask how everything is.",
+          "prompt": "Judy and Roni are having a date night and the food tastes like feet. The waiter asks 'How is everything?'",
           "options": [
-            "Judy quickly shoves food in her mouth, smiles and mumbles with food in her mouth 'so delicious!'", 
+            "Judy quickly shoves food in her mouth, smiles and mumbles with food in her mouth 'so delicious!' and then pukes in her mouth.", 
             "Judy pretends she didn't hear the waiter and lets Roni handle it", 
-            "Judy tells the waiter that actually the food wasn't so great and the waiter promptlyy gives them a free starter and chasers and they end up having a wonderful night", 
+            "Judy tells the waiter that actually the food wasn't so great and the waiter promptly gives them a free starter and chasers and they end up having a wonderful night", 
             "Judy starts to cry because as the waiter asks them how it is, he scratches his foot and picks up their pitcher of water."
           ]
         },
@@ -115,9 +115,6 @@
           "prompt": "Artificial plants"
         },
         {
-          "prompt": "LED strip lights"
-        },
-        {
           "prompt": "Going to Europe and not taking any pictures"
         },
         {
@@ -141,7 +138,15 @@
           "prompt": "Caption this image"
         },
         {
+          "image": "caption-this/back-to-school.jpeg",
+          "prompt": "Caption this image"
+        },
+        {
           "image": "caption-this/20181125_100516.jpg",
+          "prompt": "Caption this image"
+        },
+        {
+          "image": "caption-this/yael.jpeg",
           "prompt": "Caption this image"
         },
         {
@@ -150,10 +155,6 @@
         },
         {
           "image": "caption-this/20170217_143454_HDR.jpg",
-          "prompt": "Caption this image"
-        },
-        {
-          "image": "caption-this/20170216_212230_HDR.jpg",
           "prompt": "Caption this image"
         },
         {
@@ -169,15 +170,7 @@
           "prompt": "Caption this image"
         },
         {
-          "image": "caption-this/yael.jpeg",
-          "prompt": "Caption this image"
-        },
-        {
           "image": "caption-this/detectives.jpeg",
-          "prompt": "Caption this image"
-        },
-        {
-          "image": "caption-this/back-to-school.jpeg",
           "prompt": "Caption this image"
         }
       ]
@@ -215,9 +208,6 @@
           "prompt": "Roni knew he was in trouble when Judy said..."
         },
         {
-          "prompt": "Judy knew a client was going to be difficult when they said..."
-        },
-        {
           "prompt": "If Judy could redesign one thing in Roni's life, it would be..."
         },
         {
@@ -225,9 +215,6 @@
         },
         {
           "prompt": "What does Judy use ChatGPT for the most?"
-        },
-        {
-          "prompt": "Judy's most controversial interior design opinion"
         },
         {
           "prompt": "Judy's most likely excuse for buying something she absolutely does not need"
@@ -249,9 +236,6 @@
           "prompt": "Draw Judy's face the moment someone says \"could we see one more option?\"."
         },
         {
-          "prompt": "Draw Judy's dream house (simplified)."
-        },
-        {
           "prompt": "Draw Judy's face when she finds out yet another boy wants to marry Adi."
         },
         {
@@ -262,9 +246,6 @@
         },
         {
           "prompt": "Judy's version of hell."
-        },
-        {
-          "prompt": "Draw Judy's brain during a busy workday."
         },
         {
           "prompt": "Draw the contestant Judy falls in love with on Love Is Blind."
