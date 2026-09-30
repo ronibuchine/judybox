@@ -142,10 +142,6 @@
           "prompt": "Caption this image"
         },
         {
-          "image": "caption-this/20181125_100516.jpg",
-          "prompt": "Caption this image"
-        },
-        {
           "image": "caption-this/yael.jpeg",
           "prompt": "Caption this image"
         },
@@ -234,9 +230,6 @@
         },
         {
           "prompt": "Draw Judy's face the moment someone says \"could we see one more option?\"."
-        },
-        {
-          "prompt": "Draw Judy's face when she finds out yet another boy wants to marry Adi."
         },
         {
           "prompt": "Draw something you might find in Judy's dream home."
